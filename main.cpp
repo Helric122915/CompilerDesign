@@ -14,18 +14,29 @@ int main()
 
   //BST<Expr>* bst = new BST<Expr>();
 
-  And_Expr *e1;
-  e1->e1 = True_Expr;
-  e1->e2 = False_Expr;
+  std::cout << "Start Code\n";
 
-  Not_Expr *e2;
-  e2->e = True_Expr;
+  True_Expr *True = new True_Expr();
+  False_Expr *False = new False_Expr();
 
-  Or_Expr *e;
+  std::cout << "Checkpoint A\n";
+
+  And_Expr *e1 = new And_Expr();
+  e1->e1 = True;
+  e1->e2 = False;
+
+  std::cout << "Checkpoint B\n";
+
+  Not_Expr *e2 = new Not_Expr();
+  e2->e = True;
+
+  std::cout << "Checkpoint C\n";
+
+  Or_Expr *e = new Or_Expr();
   e->e1 = e1;
   e->e2 = e2;
 
-
+  std::cout << "Made it through code\n";
   /*
   bst->add();
 
