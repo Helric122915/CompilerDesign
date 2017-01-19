@@ -20,7 +20,3 @@ struct Or_Expr : Expr {
   Expr *e1;
   Expr *e2;
 };
-
-int main(){
-
-}

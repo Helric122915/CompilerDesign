@@ -3,13 +3,31 @@
 #include <ctime>
 
 #include "BST.h"
+#include "expr.h"
 
 int main()
 {
-  srand(time(0)); // seed
+  //srand(time(0)); // seed
 
   // create templated BST
-  BST<int>* bst = new BST<int>();
+  //BST<int>* bst = new BST<int>();
+
+  //BST<Expr>* bst = new BST<Expr>();
+
+  And_Expr *e1;
+  e1->e1 = True_Expr;
+  e1->e2 = False_Expr;
+
+  Not_Expr *e2;
+  e2->e = True_Expr;
+
+  Or_Expr *e;
+  e->e1 = e1;
+  e->e2 = e2;
+
+
+  /*
+  bst->add();
 
 
   // fill it with nodes
@@ -37,5 +55,5 @@ int main()
 
   bst->display(); // call the display kick starter
   std::cout << std::endl;
-
+  */
 }

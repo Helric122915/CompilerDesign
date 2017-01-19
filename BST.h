@@ -223,6 +223,4 @@ void BST<T>::treeDisplay(Node<T>* subRoot, int depth)
   // display the left side of the tree
   treeDisplay(subRoot->left, depth + 1);
 }
-
-
 #endif
