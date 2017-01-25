@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 
-#include "BST.h"
+//#include "BST.h"
 #include "expr.h"
 
 int main()
@@ -14,29 +14,20 @@ int main()
 
   //BST<Expr>* bst = new BST<Expr>();
 
-  std::cout << "Start Code\n";
+  Expr *e = new And_Expr(new Not_Expr(new Bool_Expr(true)), new Bool_Expr(false));
 
-  True_Expr *True = new True_Expr();
-  False_Expr *False = new False_Expr();
+  std::cout << "Weight: " << e->weight() << "\n";
 
-  std::cout << "Checkpoint A\n";
+  std::cout << "Height: " << e->height() << "\n";
 
-  And_Expr *e1 = new And_Expr();
-  e1->e1 = True;
-  e1->e2 = False;
+  std::cout << "Evaluation of Tree: " << (e->eval()?"true\n":"false\n");
 
-  std::cout << "Checkpoint B\n";
+  Expr *ex = new Cond_Expr(new Not_Expr(new Bool_Expr(false)), new Or_Expr(new Bool_Expr(true),new Bool_Expr(false)), new Bool_Expr(false));
 
-  Not_Expr *e2 = new Not_Expr();
-  e2->e = True;
+  std::cout << "Weight: " << ex->weight() << "\n";
+  std::cout << "Height: " << ex->height() << "\n";
+  std::cout << "Evaluation of Tree: " << (ex->eval()?"true\n":"false\n");
 
-  std::cout << "Checkpoint C\n";
-
-  Or_Expr *e = new Or_Expr();
-  e->e1 = e1;
-  e->e2 = e2;
-
-  std::cout << "Made it through code\n";
   /*
   bst->add();
 
