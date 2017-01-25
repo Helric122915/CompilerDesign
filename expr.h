@@ -1,3 +1,6 @@
+#ifndef EXPR_H
+#define EXPR_H
+
 #include <algorithm>
 #include <iostream>
 #include <cstdlib>
@@ -83,3 +86,5 @@ struct Cond_Expr : Expr {
   int height() override { return 1 + std::max(e1->height(),std::max(e2->height(),e3->height())); }
   bool eval() override { return (e1->eval() & e2->eval()) | (!e1->eval() & e3->eval()); }
 };
+
+#endif
