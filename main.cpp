@@ -1,10 +1,32 @@
 #include "bool_expr.h"
 #include "int_expr.h"
+#include "context.h"
+#include <sstream>
+#include <string>
 
-int main()
+int main(int argc, char *argv[])
 {
+  int value1 = 10, value2 = 15;
+
+  if (argc > 2) {
+    std::stringstream convert1(argv[1]);
+
+    if (!(convert1 >> value1))
+      value1 = 0;
+
+    std::stringstream convert2(argv[2]);
+
+    if (!(convert2 >> value2))
+      value2 = 0;
+  }
+
+  std::cout << value1 << "\n";
+  std::cout << value2 << "\n";
+
+  ASTcontext cxt;
+
   try {
-    Expr *e = new Mult_Expr(new Int_Expr(10),new Int_Expr(15));
+    Expr *e = new Mult_Expr(new Int_Expr(value1,cxt),new Int_Expr(value2,cxt),cxt);
     //Expr *e = new Or_Expr(new Bool_Expr(true),new Bool_Expr(false));
 
     std::cout << "Weight: " << e->weight() << "\n";

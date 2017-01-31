@@ -3,16 +3,18 @@
 
 #include <stdexcept>
 
-struct Type {
-  virtual ~Type() {}
+class Type {
+  public:
+    virtual ~Type() {}
 };
 
-struct Bool_Type : Type {};
-struct Int_Type : Type {};
+class Bool_Type : public Type {};
+class Int_Type : public Type {};
 
-struct Type_Exception : public std::exception {
-  virtual const char* message() const throw() {
-    return "A Type Error has occured.";
-  }
+class Type_Exception : public std::exception {
+  public:
+    virtual const char* message() const throw() {
+      return "A Type Error has occured.";
+    }
 };
 #endif

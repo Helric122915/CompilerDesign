@@ -14,7 +14,7 @@ Type_Exception Type_Error;
 
 class Expr {
   public:
-    Type *type;
+    const Type *type;
 
     virtual ~Expr(){}
     virtual int weight() = 0;
