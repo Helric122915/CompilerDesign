@@ -79,7 +79,45 @@ Type* check(Expr* e, ASTcontext cxt) {
       else throw Type_Error;
     }
     void visit(Mult_Expr* e) {
-      if (e->
+      if (e->getE1()->getType() == &cxt.Int_ && e->getE2()->getType() == &cxt.Int_)
+        r = &cxt.Int_;
+      else throw Type_Error;
+    }
+    void visit(Div_Expr* e) {
+      if (e->getE1()->getType() == &cxt.Int_ && e->getE2()->getType() == &cxt.Int_)
+        r = &cxt.Int_;
+      else throw Type_Error;
+    }
+    void visit(Mod_Expr* e) {
+      if (e->getE1()->getType() == &cxt.Int_ && e->getE2()->getType() == &cxt.Int_)
+        r = &cxt.Int_;
+      else throw Type_Error;
+    }
+    void visit(LessThan_Expr* e) {
+      if (e->getE1()->getType() == &cxt.Int_ && e->getE2()->getType() == &cxt.Int_)
+        r = &cxt.Bool_;
+      else throw Type_Error;
+    }
+    void visit(GreaterThan_Expr* e) {
+      if (e->getE1()->getType() == &cxt.Int_ && e->getE2()->getType() == &cxt.Int_)
+        r = &cxt.Bool_;
+      else throw Type_Error;
+    }
+    void visit(LessEqThan_Expr* e) {
+      if (e->getE1()->getType() == &cxt.Int_ && e->getE2()->getType() == &cxt.Int_)
+        r = &cxt.Bool_;
+      else throw Type_Error;
+    }
+    void visit(GreaterEqThan_Expr* e) {
+      if (e->getE1()->getType() == &cxt.Int_ && e->getE2()->getType() == &cxt.Int_)
+        r = &cxt.Bool_;
+      else throw Type_Error;
+    }
+    void visit(Negation_Expr* e) {
+      if (e->getE()->getType() == &cxt.Int_)
+        r = &cxt.Int_;
+      else throw Type_Error;
+    }
   };
 }
 
