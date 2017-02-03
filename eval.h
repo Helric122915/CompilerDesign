@@ -7,8 +7,11 @@
 int eval(Expr *e)
 {
   class V : public Expr::Visitor {
-    public:
+    private:
       int r;
+
+    public:
+      int getR() { return r; }
       void visit(Bool_Expr* e) { r = e->getValue(); }
       void visit(And_Expr* e) { r = eval(e->getE1()) & eval(e->getE2()); }
       void visit(Or_Expr* e) { r = eval(e->getE1()) | eval(e->getE2()); }
@@ -34,6 +37,6 @@ int eval(Expr *e)
   };
   V vis;
   e->accept(vis);
-  return vis.r;
+  return vis.getR();
 }
 #endif

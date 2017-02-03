@@ -8,8 +8,11 @@
 int height(Expr *e)
 {
   class V : public Expr::Visitor {
-    public:
+    private:
       int r;
+
+    public:
+      int getR() { return r; }
       void visit(Bool_Expr* e) { r = 1; }
       void visit(And_Expr* e) { r = 1 + std::max(height(e->getE1()),height(e->getE2())); }
       void visit(Or_Expr* e) { r = 1 + std::max(height(e->getE1()),height(e->getE2())); }
@@ -35,6 +38,6 @@ int height(Expr *e)
   };
   V vis;
   e->accept(vis);
-  return vis.r;
+  return vis.getR();
 }
 #endif
