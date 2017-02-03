@@ -1,5 +1,5 @@
-#ifndef CONTENT_H
-#define CONTENT_H
+#ifndef CONTEXT_H
+#define CONTEXT_H
 
 #include "type.h"
 

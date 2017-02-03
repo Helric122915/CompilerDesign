@@ -1,3 +1,6 @@
+#ifndef WEIGHT_H
+#define WEIGHT_H
+
 #include "bool_expr.h"
 #include "int_expr.h"
 
@@ -13,7 +16,7 @@ int weight(Expr *e)
       void visit(Not_Expr* e) { r = 1 + weight(e->getE()); }
       void visit(Eq_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2()); }
       void visit(NotEq_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2()); }
-      void visit(Cond_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2() + weight(e->getE3()); }
+      void visit(Cond_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2()) + weight(e->getE3()); }
       void visit(AndThen_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2()); }
       void visit(OrElse_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2()); }
 
@@ -33,3 +36,4 @@ int weight(Expr *e)
   e->accept(vis);
   return vis.r;
 }
+#endif

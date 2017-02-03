@@ -13,9 +13,11 @@ class Int_Expr : public Expr {
       this->type = cxt.Int_;
     }
 
+    void accept(Visitor& v) { return v.visit(this); }   
     int weight() override { return 1; }
     int height() override { return 0; }
     int eval() override { return value; }
+    int getValue() { return value; }
 };
 
 class Add_Expr : public Expr {
@@ -30,9 +32,12 @@ class Add_Expr : public Expr {
         throw Type_Error;
     }
 
+    void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() + e2->eval(); }
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
 };
 
 class Sub_Expr : public Expr {
@@ -47,9 +52,12 @@ class Sub_Expr : public Expr {
         throw Type_Error;
      }
 
+     void accept(Visitor& v) { return v.visit(this); }
      int weight() override { return 1 + e1->weight() + e2->weight(); }
      int height() override { return 1 + std::max(e1->height(),e2->height()); }
      int eval() override { return e1->eval() - e2->eval(); }
+     Expr* getE1() { return e1; }
+     Expr* getE2() { return e2; }
 };
 
 class Mult_Expr : public Expr {
@@ -64,9 +72,12 @@ class Mult_Expr : public Expr {
         throw Type_Error;
     }
 
+    void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() * e2->eval(); }
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
 };
 
 class Div_Expr : public Expr {
@@ -81,9 +92,12 @@ class Div_Expr : public Expr {
         throw Type_Error;
     }
 
+    void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() / e2->eval(); }
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
 };
 
 class Mod_Expr : public Expr {
@@ -93,14 +107,17 @@ class Mod_Expr : public Expr {
   public:
     Mod_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
       if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-        this->type = &Int_;
+        this->type = cxt.Int_;
       else
         throw Type_Error;
     }
 
+    void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() % e2->eval(); }
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
 };
 
 class LessThan_Expr : public Expr {
@@ -115,9 +132,12 @@ class LessThan_Expr : public Expr {
         throw Type_Error;
     }
 
+    void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() < e2->eval(); }
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
 };
 
 class GreaterThan_Expr : public Expr {
@@ -132,9 +152,12 @@ class GreaterThan_Expr : public Expr {
         throw Type_Error;
     }
 
+    void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() > e2->eval(); }
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
 };
 
 class LessEqThan_Expr : public Expr {
@@ -149,9 +172,12 @@ class LessEqThan_Expr : public Expr {
         throw Type_Error;
     }
 
+    void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() <= e2->eval(); }
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
 };
 
 class GreaterEqThan_Expr : public Expr {
@@ -166,9 +192,12 @@ class GreaterEqThan_Expr : public Expr {
         throw Type_Error;
     }
 
+    void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() >= e2->eval(); }
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
 };
 
 class Negation_Expr : public Expr {
@@ -183,8 +212,10 @@ class Negation_Expr : public Expr {
         throw Type_Error;
     }
 
+    void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e->weight(); }
     int height() override { return 1 + e->height(); }
     int eval() override { return 0 - e->eval(); }
+    Expr* getE() { return e; }
 };
 #endif

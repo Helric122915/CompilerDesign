@@ -1,3 +1,6 @@
+#ifndef EVAL_H
+#define EVAL_H
+
 #include "bool_expr.h"
 #include "int_expr.h"
 
@@ -33,3 +36,4 @@ int eval(Expr *e)
   e->accept(vis);
   return vis.r;
 }
+#endif

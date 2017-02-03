@@ -3,6 +3,10 @@
 #include "context.h"
 #include <sstream>
 #include <string>
+#include "eval.h"
+#include "weight.h"
+#include "height.h"
+#include "check.h"
 
 int main(int argc, char *argv[])
 {
@@ -29,9 +33,10 @@ int main(int argc, char *argv[])
     Expr *e = new Mult_Expr(new Int_Expr(value1,cxt),new Int_Expr(value2,cxt),cxt);
     //Expr *e = new Or_Expr(new Bool_Expr(true),new Bool_Expr(false));
 
-    std::cout << "Weight: " << e->weight() << "\n";
-    std::cout << "Height: " << e->height() << "\n";
-    std::cout << "Evaluation of Tree: " << e->eval() << "\n";
+    std::cout << "Type: " << check(e, cxt) << "\n";
+    std::cout << "Weight: " << weight(e) << "\n";
+    std::cout << "Height: " << height(e) << "\n";
+    std::cout << "Evaluation of Tree: " << eval(e) << "\n";
     //std::cout << "Evaluation of Tree: " << (e->eval()?"true\n":"false\n");
   }
   catch (Type_Exception e) {
