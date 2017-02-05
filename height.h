@@ -3,7 +3,6 @@
 
 #include "bool_expr.h"
 #include "int_expr.h"
-#include <algorithm>
 
 int height(Expr *e)
 {

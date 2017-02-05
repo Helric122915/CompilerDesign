@@ -32,7 +32,7 @@ bool needs_parens(Expr* e) {
       void visit(GreaterThan_Expr* e) { r = true; }
       void visit(LessEqThan_Expr* e) { r = true; }
       void visit(GreaterEqThan_Expr* e) { r = true; }
-      void visit(Negation_Expr* e) { r = true; }
+      void visit(Negation_Expr* e) { r = false; }
   };
   V vis;
   e->accept(vis);
@@ -100,12 +100,12 @@ void print(Expr *e)
         std::cout << " ? ";
         print_enclosed(e->getE2());
 	std::cout << " : ";
-	std::cout << "false";
+	std::cout << "False";
       }
       void visit(OrElse_Expr* e) {
         print_enclosed(e->getE1());
         std::cout << " ? ";
-	std::cout << "true";
+	std::cout << "True";
 	std::cout << " : ";
 	print_enclosed(e->getE2());
       }

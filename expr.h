@@ -1,9 +1,7 @@
 #ifndef EXPR_H
 #define EXPR_H
 
-#include <algorithm>
-#include <iostream>
-#include "type.h"
+#include "context.h"
 
 // Bool Expressions
 class Bool_Expr;
@@ -31,7 +29,7 @@ class GreaterEqThan_Expr;
 class Negation_Expr;
 
 //class Type;
-Type_Exception Type_Error;
+Type_Exception *Type_Error = new Type_Exception("Unknown");
 
 class Expr {
   public:

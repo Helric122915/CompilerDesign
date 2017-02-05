@@ -2,7 +2,6 @@
 #define BOOL_EXPR_H
 
 #include "expr.h"
-#include "context.h"
 
 class Bool_Expr : public Expr {
   private:
@@ -29,13 +28,13 @@ class Not_Expr : public Expr {
       if (e->type == cxt.Bool_)
         this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("Not_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e->weight(); }
     int height() override { return 1 + e->height(); }
-    int eval() override { return ~e->eval(); }
+    int eval() override { return e->eval(); }
     Expr* getE() { return e; }
 };
 
@@ -48,7 +47,7 @@ class And_Expr : public Expr {
       if (e1->type == cxt.Bool_ && e2->type == cxt.Bool_)
         this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("And_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -68,7 +67,7 @@ class Or_Expr : public Expr {
       if (e1->type == cxt.Bool_ && e2->type == cxt.Bool_)
         this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("Or_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -88,7 +87,7 @@ class Xor_Expr : public Expr {
       if(e1->type == cxt.Bool_ && e2->type == cxt.Bool_)
         this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("Xor_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -106,9 +105,9 @@ class Eq_Expr : public Expr {
   public:
     Eq_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
       if (e1->type == e2->type)
-        this->type == cxt.Bool_;
+        this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("Eq_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -126,9 +125,9 @@ class NotEq_Expr : public Expr {
   public:
     NotEq_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
       if (e1->type == e2->type)
-        this->type == cxt.Bool_;
+        this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("NotEq_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -146,9 +145,9 @@ class Cond_Expr : public Expr {
   public:
     Cond_Expr(Expr *e1, Expr *e2, Expr *e3, ASTcontext &cxt) : e1(e1), e2(e2), e3(e3) {
       if (e1->type == cxt.Bool_ && e2->type == e3->type)
-        this->type == e2->type;
+        this->type = e2->type;
       else
-        throw Type_Error;
+        throw Type_Exception("Cond_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -169,7 +168,7 @@ class AndThen_Expr : public Expr {
       if (e1->type == cxt.Bool_ && e2->type == cxt.Bool_)
         this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("AndThen_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -187,9 +186,9 @@ class OrElse_Expr : public Expr {
   public:
     OrElse_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
       if (e1->type == cxt.Bool_ && e2->type == cxt.Bool_)
-        this->type == cxt.Bool_;
+        this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("OrElse_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }

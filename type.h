@@ -2,6 +2,7 @@
 #define TYPE_H
 
 #include <stdexcept>
+#include <string>
 
 class Type {
   public:
@@ -12,9 +13,14 @@ class Bool_Type : public Type {};
 class Int_Type : public Type {};
 
 class Type_Exception : public std::exception {
+  private:
+    std::string type;
+
   public:
-    virtual const char* message() const throw() {
-      return "A Type Error has occured.";
+    Type_Exception(std::string type) : type(type) {}
+
+    virtual std::string message() const throw() {
+      return "A Type Error of Type: " + type;
     }
 };
 #endif

@@ -1,8 +1,7 @@
-#include "bool_expr.h"
-#include "int_expr.h"
-#include "context.h"
 #include <sstream>
 #include <string>
+#include "bool_expr.h"
+#include "int_expr.h"
 #include "eval.h"
 #include "weight.h"
 #include "height.h"
@@ -12,9 +11,10 @@
 void Evaluate_Int(Expr*, ASTcontext&);
 void Evaluate_Bool(Expr*, ASTcontext&);
 
-int main(int argc, char *argv[])
+int main()//int argc, char *argv[])
 {
   ASTcontext cxt;
+  /*
   int value1 = 10, value2 = 15;
 
   if (argc > 2) {
@@ -27,12 +27,16 @@ int main(int argc, char *argv[])
 
     if (!(convert2 >> value2))
       value2 = 0;
-  }
+  }*/
 
   //std::cout << value1 << "\n";
   //std::cout << value2 << "\n";
 
   try {
+    std::cout << "Testing Large Expression\n";
+    Expr *largeE = new Mult_Expr(new Div_Expr(new Int_Expr(25,cxt),new Int_Expr(2,cxt),cxt),new Mult_Expr(new Sub_Expr(new Mod_Expr(new Int_Expr(35,cxt),new Int_Expr(4,cxt),cxt),new Int_Expr(5,cxt),cxt),new Add_Expr(new Int_Expr(15,cxt),new Int_Expr(6,cxt),cxt),cxt),cxt);
+    Evaluate_Int(largeE,cxt);
+
     std::cout << "Testing And_Expr\n";
     Expr *andE = new And_Expr(new Bool_Expr(true,cxt),new Bool_Expr(true,cxt),cxt);
     Evaluate_Bool(andE,cxt);
@@ -54,11 +58,11 @@ int main(int argc, char *argv[])
     Evaluate_Bool(noteqE,cxt);
 
     std::cout << "Testing AndThen_Expr\n";
-    Expr *andthenE = new AndThen_Expr(new Bool_Expr(false,cxt),new Bool_Expr(true,cxt),cxt);
+    Expr *andthenE = new AndThen_Expr(new LessThan_Expr(new Int_Expr(15,cxt),new Int_Expr(17,cxt),cxt),new GreaterEqThan_Expr(new Int_Expr(2,cxt),new Int_Expr(5,cxt),cxt),cxt);
     Evaluate_Bool(andthenE,cxt);
 
     std::cout << "Testing OrElse_Expr\n";
-    Expr *orelseE = new OrElse_Expr(new Bool_Expr(true,cxt),new Bool_Expr(false,cxt),cxt);
+    Expr *orelseE = new OrElse_Expr(new Eq_Expr(new Int_Expr(-12,cxt),new Negation_Expr(new Int_Expr(12,cxt),cxt),cxt),new NotEq_Expr(new Int_Expr(5,cxt),new Int_Expr(7,cxt),cxt),cxt);
     Evaluate_Bool(orelseE,cxt);
 
     std::cout << "Testing Add_Expr\n";
@@ -80,6 +84,14 @@ int main(int argc, char *argv[])
     std::cout << "Testing Mod_Expr\n";
     Expr *modE = new Mod_Expr(new Int_Expr(25,cxt),new Int_Expr(4,cxt),cxt);
     Evaluate_Int(modE,cxt);
+
+    std::cout << "Testing Eq_Expr with Int\n";
+    Expr *eqInt = new Eq_Expr(new Int_Expr(35,cxt),new Int_Expr(35,cxt),cxt);
+    Evaluate_Bool(eqInt,cxt);
+
+    std::cout << "Testing NotEq_Expr with Int\n";
+    Expr *noteqInt = new NotEq_Expr(new Int_Expr(37,cxt),new Int_Expr(37,cxt),cxt);
+    Evaluate_Bool(noteqInt,cxt);
 
     std::cout << "Testing LessThan_Expr\n";
     Expr *lessthanE = new LessThan_Expr(new Int_Expr(17,cxt),new Int_Expr(15,cxt),cxt);
@@ -108,20 +120,16 @@ int main(int argc, char *argv[])
 
 void Evaluate_Int(Expr* e, ASTcontext &cxt) {
   print(e);
-  std::cout << "\n";
-  std::cout << "Type Check: " << (cxt.Int_ == check(e, cxt)?"Match\n":"Don't Match\n");
+  std::cout << "\nType Check: " << (cxt.Int_ == check(e, cxt)?"Match\n":"Don't Match\n");
   std::cout << "Weight: " << weight(e) << "\n";
   std::cout << "Height: " << height(e) << "\n";
-  std::cout << "Evaluation of Tree: " << eval(e) << "\n";
-  std::cout << "\n";
+  std::cout << "Evaluation of Tree: " << eval(e) << "\n\n";
 }
 
 void Evaluate_Bool(Expr* e, ASTcontext &cxt) {
   print(e);
-  std::cout << "\n";
-  std::cout << "Type Check: " << (cxt.Bool_ == check(e, cxt)?"Match\n":"Don't Match\n");
+  std::cout << "\nType Check: " << (cxt.Bool_ == check(e, cxt)?"Match\n":"Don't Match\n");
   std::cout << "Weight: " << weight(e) << "\n";
   std::cout << "Height: " << height(e) << "\n";
-  std::cout << "Evaluation of Tree: " << (eval(e)?"True\n":"False\n");
-  std::cout << "\n";
+  std::cout << "Evaluation of Tree: " << (eval(e)?"True\n\n":"False\n\n");
 }

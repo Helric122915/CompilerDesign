@@ -2,7 +2,6 @@
 #define INT_EXPR_H
 
 #include "expr.h"
-#include "context.h"
 
 class Int_Expr : public Expr {
   private:
@@ -13,7 +12,7 @@ class Int_Expr : public Expr {
       this->type = cxt.Int_;
     }
 
-    void accept(Visitor& v) { return v.visit(this); }   
+    void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1; }
     int height() override { return 0; }
     int eval() override { return value; }
@@ -29,7 +28,7 @@ class Add_Expr : public Expr {
       if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
         this->type = cxt.Int_;
       else
-        throw Type_Error;
+        throw Type_Exception("Add_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -49,7 +48,7 @@ class Sub_Expr : public Expr {
       if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
         this->type = cxt.Int_;
       else
-        throw Type_Error;
+        throw Type_Exception("Sub_Expr");
      }
 
      void accept(Visitor& v) { return v.visit(this); }
@@ -69,7 +68,7 @@ class Mult_Expr : public Expr {
       if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
         this->type = cxt.Int_;
       else
-        throw Type_Error;
+        throw Type_Exception("Mult_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -89,7 +88,7 @@ class Div_Expr : public Expr {
       if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
         this->type = cxt.Int_;
       else
-        throw Type_Error;
+        throw Type_Exception("Div_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -109,7 +108,7 @@ class Mod_Expr : public Expr {
       if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
         this->type = cxt.Int_;
       else
-        throw Type_Error;
+        throw Type_Exception("Mod_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -127,9 +126,9 @@ class LessThan_Expr : public Expr {
   public:
     LessThan_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
       if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-        this->type == cxt.Bool_;
+        this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("LessThan_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -147,9 +146,9 @@ class GreaterThan_Expr : public Expr {
   public:
     GreaterThan_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
       if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-        this->type == cxt.Bool_;
+        this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("GreaterThan_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -167,9 +166,9 @@ class LessEqThan_Expr : public Expr {
   public:
     LessEqThan_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
       if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-        this->type == cxt.Bool_;
+        this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("LessEqThan_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -187,9 +186,9 @@ class GreaterEqThan_Expr : public Expr {
   public:
     GreaterEqThan_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
       if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-        this->type == cxt.Bool_;
+        this->type = cxt.Bool_;
       else
-        throw Type_Error;
+        throw Type_Exception("GreaterEqThan_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }
@@ -207,9 +206,9 @@ class Negation_Expr : public Expr {
   public:
     Negation_Expr(Expr *e, ASTcontext &cxt) : e(e) {
       if (e->type == cxt.Int_)
-        this->type == cxt.Int_;
+        this->type = cxt.Int_;
       else
-        throw Type_Error;
+        throw Type_Exception("Negation_Expr");
     }
 
     void accept(Visitor& v) { return v.visit(this); }

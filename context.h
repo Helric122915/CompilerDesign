@@ -1,6 +1,8 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include <iostream>
+#include <algorithm>
 #include "type.h"
 
 class ASTcontext {
