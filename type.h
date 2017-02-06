@@ -18,6 +18,7 @@ class Type_Exception : public std::exception {
 
   public:
     Type_Exception(std::string type) : type(type) {}
+    ~Type_Exception() = default;
 
     virtual std::string message() const throw() {
       return "A Type Error of Type: " + type;
