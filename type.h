@@ -3,6 +3,9 @@
 
 #include <stdexcept>
 #include <string>
+#include <iostream>
+#include <algorithm>
+#include <list>
 
 class Type {
   public:

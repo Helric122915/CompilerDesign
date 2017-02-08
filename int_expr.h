@@ -11,6 +11,7 @@ class Int_Expr : public Expr {
     Int_Expr(int value, ASTcontext &cxt) : value(value) {
       this->type = cxt.Int_;
     }
+    ~Int_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1; }
@@ -30,6 +31,7 @@ class Add_Expr : public Expr {
       else
         throw Type_Exception("Add_Expr");
     }
+    ~Add_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -50,6 +52,7 @@ class Sub_Expr : public Expr {
       else
         throw Type_Exception("Sub_Expr");
      }
+     ~Sub_Expr() = default;
 
      void accept(Visitor& v) { return v.visit(this); }
      int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -70,6 +73,7 @@ class Mult_Expr : public Expr {
       else
         throw Type_Exception("Mult_Expr");
     }
+    ~Mult_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -90,6 +94,7 @@ class Div_Expr : public Expr {
       else
         throw Type_Exception("Div_Expr");
     }
+    ~Div_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -110,6 +115,7 @@ class Mod_Expr : public Expr {
       else
         throw Type_Exception("Mod_Expr");
     }
+    ~Mod_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -130,6 +136,7 @@ class LessThan_Expr : public Expr {
       else
         throw Type_Exception("LessThan_Expr");
     }
+    ~LessThan_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -150,6 +157,7 @@ class GreaterThan_Expr : public Expr {
       else
         throw Type_Exception("GreaterThan_Expr");
     }
+    ~GreaterThan_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -170,6 +178,7 @@ class LessEqThan_Expr : public Expr {
       else
         throw Type_Exception("LessEqThan_Expr");
     }
+    ~LessEqThan_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -190,6 +199,7 @@ class GreaterEqThan_Expr : public Expr {
       else
         throw Type_Exception("GreaterEqThan_Expr");
     }
+    ~GreaterEqThan_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -210,6 +220,7 @@ class Negation_Expr : public Expr {
       else
         throw Type_Exception("Negation_Expr");
     }
+    ~Negation_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e->weight(); }

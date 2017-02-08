@@ -1,5 +1,5 @@
 #ifndef BOOL_EXPR_H
-#define BOOL_EXPR_H
+0;136;0c#define BOOL_EXPR_H
 
 #include "expr.h"
 
@@ -11,6 +11,7 @@ class Bool_Expr : public Expr {
     Bool_Expr(bool value, ASTcontext &cxt) : value(value) {
       this->type = cxt.Bool_;
     }
+    ~Bool_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1; }
@@ -30,6 +31,7 @@ class Not_Expr : public Expr {
       else
         throw Type_Exception("Not_Expr");
     }
+    ~Not_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e->weight(); }
@@ -49,6 +51,7 @@ class And_Expr : public Expr {
       else
         throw Type_Exception("And_Expr");
     }
+    ~And_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -69,6 +72,7 @@ class Or_Expr : public Expr {
       else
         throw Type_Exception("Or_Expr");
     }
+    ~Or_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -89,6 +93,7 @@ class Xor_Expr : public Expr {
       else
         throw Type_Exception("Xor_Expr");
     }
+    ~Xor_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -109,6 +114,7 @@ class Eq_Expr : public Expr {
       else
         throw Type_Exception("Eq_Expr");
     }
+    ~Eq_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -129,6 +135,7 @@ class NotEq_Expr : public Expr {
       else
         throw Type_Exception("NotEq_Expr");
     }
+    ~NotEq_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -149,6 +156,7 @@ class Cond_Expr : public Expr {
       else
         throw Type_Exception("Cond_Expr");
     }
+    ~Cond_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight() + e3->weight(); }
@@ -170,6 +178,7 @@ class AndThen_Expr : public Expr {
       else
         throw Type_Exception("AndThen_Expr");
     }
+    ~AndThen_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }
@@ -190,6 +199,7 @@ class OrElse_Expr : public Expr {
       else
         throw Type_Exception("OrElse_Expr");
     }
+    ~OrElse_Expr() = default;
 
     void accept(Visitor& v) { return v.visit(this); }
     int weight() override { return 1 + e1->weight() + e2->weight(); }

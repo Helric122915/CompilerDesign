@@ -3,6 +3,7 @@
 
 #include "context.h"
 
+/*
 // Bool Expressions
 class Bool_Expr;
 class And_Expr;
@@ -27,9 +28,7 @@ class GreaterThan_Expr;
 class LessEqThan_Expr;
 class GreaterEqThan_Expr;
 class Negation_Expr;
-
-//class Type;
-Type_Exception *Type_Error = new Type_Exception("Unknown");
+*/
 
 class Expr {
   public:
@@ -47,6 +46,7 @@ class Expr {
 
 class Expr::Visitor {
   public:
+    virtual ~Visitor() = default;
     virtual void visit(Bool_Expr*) = 0;
     virtual void visit(And_Expr*) = 0;
     virtual void visit(Or_Expr*) = 0;

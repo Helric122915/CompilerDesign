@@ -1,7 +1,3 @@
-#include <sstream>
-#include <string>
-#include "bool_expr.h"
-#include "int_expr.h"
 #include "eval.h"
 #include "weight.h"
 #include "height.h"
@@ -11,29 +7,13 @@
 void Evaluate_Int(Expr*, ASTcontext&);
 void Evaluate_Bool(Expr*, ASTcontext&);
 
-int main()//int argc, char *argv[])
+int main()
 {
   ASTcontext cxt;
-  /*
-  int value1 = 10, value2 = 15;
-
-  if (argc > 2) {
-    std::stringstream convert1(argv[1]);
-
-    if (!(convert1 >> value1))
-      value1 = 0;
-
-    std::stringstream convert2(argv[2]);
-
-    if (!(convert2 >> value2))
-      value2 = 0;
-  }*/
-
-  //std::cout << value1 << "\n";
-  //std::cout << value2 << "\n";
 
   try {
     std::cout << "Testing Large Expression\n";
+    //cxt.Ints.emplace_back(25,cxt);
     Expr *largeE = new Mult_Expr(new Div_Expr(new Int_Expr(25,cxt),new Int_Expr(2,cxt),cxt),new Mult_Expr(new Sub_Expr(new Mod_Expr(new Int_Expr(35,cxt),new Int_Expr(4,cxt),cxt),new Int_Expr(5,cxt),cxt),new Add_Expr(new Int_Expr(15,cxt),new Int_Expr(6,cxt),cxt),cxt),cxt);
     Evaluate_Int(largeE,cxt);
 
@@ -115,7 +95,9 @@ int main()//int argc, char *argv[])
   }
   catch (Type_Exception e) {
     std::cout << e.message() << "\n";
+    return 1;
   }
+  return 0;
 }
 
 void Evaluate_Int(Expr* e, ASTcontext &cxt) {
