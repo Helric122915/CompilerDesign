@@ -4,6 +4,8 @@
 #include "bool_expr.hpp"
 #include "int_expr.hpp"
 
+// Implementation of the Visitor pattern allowing for the height of an expression to be checked.
+// Returns the height of the expression e that is passed in.
 int height(Expr *e)
 {
   class V : public Expr::Visitor {
@@ -11,7 +13,10 @@ int height(Expr *e)
       int r;
 
     public:
+      // Accessor function to retieve the private variable r.
       int getR() { return r; }
+
+      // Overriding of each visit virtual function set to the desired functionality of each expression.
       void visit(Bool_Expr* e) { r = 1; }
       void visit(And_Expr* e) { r = 1 + std::max(height(e->getE1()),height(e->getE2())); }
       void visit(Or_Expr* e) { r = 1 + std::max(height(e->getE1()),height(e->getE2())); }

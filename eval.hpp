@@ -4,6 +4,8 @@
 #include "bool_expr.hpp"
 #include "int_expr.hpp"
 
+// Implementation of the Visistor pattern allowing for the evaluation of an expression to be conducted.
+// Returns the result of the expression e that is passed in.
 int eval(Expr *e)
 {
   class V : public Expr::Visitor {
@@ -11,7 +13,10 @@ int eval(Expr *e)
       int r;
 
     public:
+      // Accessor function to retrieve the private variable r.
       int getR() { return r; }
+
+      // Overriding of each visit virtual function set to the desired functionality of each expression.
       void visit(Bool_Expr* e) { r = e->getValue(); }
       void visit(And_Expr* e) { r = eval(e->getE1()) & eval(e->getE2()); }
       void visit(Or_Expr* e) { r = eval(e->getE1()) | eval(e->getE2()); }

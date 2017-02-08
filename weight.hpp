@@ -4,6 +4,8 @@
 #include "bool_expr.hpp"
 #include "int_expr.hpp"
 
+// Implementation of the Visitor pattern allowing for the weight of an expression to be checked.
+// Returns the weight of the expression e that is passed in.
 int weight(Expr *e)
 {
   class V : public Expr::Visitor {
@@ -11,7 +13,10 @@ int weight(Expr *e)
       int r;
 
     public:
+      // Accessor function to retrieve the private variable r.
       int getR() { return r; }
+
+      // Overriding of each visit virtual function set to the desired functionality of each expression.
       void visit(Bool_Expr* e) { r = 1; }
       void visit(And_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2()); }
       void visit(Or_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2()); }

@@ -3,13 +3,18 @@
 
 #include "context.hpp"
 
+// Base Expr class that defines an expression and will be inherited from by all expressions.
 class Expr {
   public:
     class Visitor;
     const Type *type;
 
     virtual ~Expr() = default;
+
+    // Accept visitor function that allows a visitor to interact with an expression.
     virtual void accept(Visitor&) = 0;
+
+    // Pure virtual functions to be overriden in a derived class.
     virtual int weight() = 0;
     virtual int height() = 0;
     virtual int eval() = 0;
@@ -17,6 +22,7 @@ class Expr {
     const Type* getType() { return type; }
 };
 
+// Based Visitor Class in the Expr class that will be inherited in each visitor function implementation.
 class Expr::Visitor {
   public:
     virtual ~Visitor() = default;

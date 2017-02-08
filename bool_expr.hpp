@@ -3,6 +3,7 @@
 
 #include "expr.hpp"
 
+// The expressions true and false have type bool and the math values "true" and "false", respectively.
 class Bool_Expr : public Expr {
   private:
     bool value;
@@ -13,13 +14,19 @@ class Bool_Expr : public Expr {
     }
     ~Bool_Expr() = default;
 
+    // Accessor function to retrieve the private variable value.
+    int getValue() { return value; }
+
+    // Overriding of accept virtual function to accept visitors.
     void accept(Visitor& v) { return v.visit(this); }
+
+    // Overriding of virtual functions to access the expression.
     int weight() override { return 1; }
     int height() override { return 0; }
     int eval() override { return value; }
-    int getValue() { return value; }
 };
 
+// The operand of not e shall have type bool, and the type of the expression is bool.
 class Not_Expr : public Expr {
   private:
     Expr *e;
@@ -33,13 +40,19 @@ class Not_Expr : public Expr {
     }
     ~Not_Expr() = default;
 
+    // Accessor function to retrieve the private variable e.
+    Expr* getE() { return e; }
+
+    // Overriding of accept virtual function to accept visitors.
     void accept(Visitor& v) { return v.visit(this); }
+
+    // Overriding of virtual functions to access the expression.
     int weight() override { return 1 + e->weight(); }
     int height() override { return 1 + e->height(); }
     int eval() override { return e->eval(); }
-    Expr* getE() { return e; }
 };
 
+// The operands of e1 and e2 shall have type bool. The result type of and is bool.
 class And_Expr : public Expr {
   private:
     Expr *e1, *e2;
@@ -53,14 +66,20 @@ class And_Expr : public Expr {
     }
     ~And_Expr() = default;
 
+    // Accessor functions to retrieve the private variables e1 and e2.
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
+
+    // Overriding of accept virtual function to accept visitors.
     void accept(Visitor& v) { return v.visit(this); }
+
+    // Overriding of virtual functions to access the expression.
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() & e2->eval(); }
-    Expr* getE1() { return e1; }
-    Expr* getE2() { return e2; }
 };
 
+// The operands of e1 or e2 shall have type bool. The result type of or is bool.
 class Or_Expr : public Expr {
   private:
     Expr *e1, *e2;
@@ -74,14 +93,20 @@ class Or_Expr : public Expr {
     }
     ~Or_Expr() = default;
 
+    // Accessor functions to retrieve the private variables e1 and e2.
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
+
+    // Overriding of accept virtual function to accept visitors.
     void accept(Visitor& v) { return v.visit(this); }
+
+    // Overriding of virtual functions to access the expression.
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() | e2->eval(); }
-    Expr* getE1() { return e1; }
-    Expr* getE2() { return e2; }
 };
 
+// The operands of e1 xor e2 shall have type bool. The result type of xor is bool.
 class Xor_Expr : public Expr {
   private:
     Expr *e1, *e2;
@@ -95,14 +120,20 @@ class Xor_Expr : public Expr {
     }
     ~Xor_Expr() = default;
 
+    // Accessor functions to retrieve the private variables e1 and e2.
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
+
+    // Overriding of accept virtual function to accept visitors.
     void accept(Visitor& v) { return v.visit(this); }
+
+    // Overriding of virtual functions to access the expression.
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() ^ e2->eval(); }
-    Expr* getE1() { return e1; }
-    Expr* getE2() { return e2; }
 };
 
+// The operands of e1 == e2 shall have the same type. The result type of == is bool.
 class Eq_Expr : public Expr {
   private:
     Expr *e1, *e2;
@@ -116,14 +147,20 @@ class Eq_Expr : public Expr {
     }
     ~Eq_Expr() = default;
 
+    // Accessor functions to retrieve the private variables e1 and e2.
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
+
+    // Overriding of accept virtual function to accept visitors.
     void accept(Visitor& v) { return v.visit(this); }
+
+    // Overriding of virtual functions to access the expression.
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() == e2->eval(); }
-    Expr* getE1() { return e1; }
-    Expr* getE2() { return e2; }
 };
 
+// The operands of e1 != e shall have the same type. The result type of != is bool.
 class NotEq_Expr : public Expr {
   private:
     Expr *e1, *e2;
@@ -137,14 +174,20 @@ class NotEq_Expr : public Expr {
     }
     ~NotEq_Expr() = default;
 
+    // Accessor functions to retrieve the private variables e1 and e2.
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
+
+    // Overriding of accept virtual function to accept visitors.
     void accept(Visitor& v) { return v.visit(this); }
+
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() != e2->eval(); }
-    Expr* getE1() { return e1; }
-    Expr* getE2() { return e2; }
 };
 
+// The operands of e1 ? e2 : e3, e1 shall have type bool, e2 and e3 shall have the same type.
+// The result type of e1 ? e2 : e3 shall have the type of e2 and e3.
 class Cond_Expr : public Expr {
   private:
     Expr *e1, *e2, *e3;
@@ -158,15 +201,21 @@ class Cond_Expr : public Expr {
     }
     ~Cond_Expr() = default;
 
-    void accept(Visitor& v) { return v.visit(this); }
-    int weight() override { return 1 + e1->weight() + e2->weight() + e3->weight(); }
-    int height() override { return 1 + std::max(e1->height(),std::max(e2->height(),e3->height())); }
-    int eval() override { return e1->eval() ? e2->eval() : e3->eval(); }
+    // Accessor functions to retrieve the private variables e1, e2 and e3.
     Expr* getE1() { return e1; }
     Expr* getE2() { return e2; }
     Expr* getE3() { return e3; }
+
+    // Overriding of accept virtual function to accept visitors.
+    void accept(Visitor& v) { return v.visit(this); }
+
+    // Overriding of virtual functions to access the expression.
+    int weight() override { return 1 + e1->weight() + e2->weight() + e3->weight(); }
+    int height() override { return 1 + std::max(e1->height(),std::max(e2->height(),e3->height())); }
+    int eval() override { return e1->eval() ? e2->eval() : e3->eval(); }
 };
 
+// The operands of e1 AndThen e2 shall have type bool. The result type of AndThen shall have type bool.
 class AndThen_Expr : public Expr {
   private:
     Expr *e1, *e2;
@@ -180,14 +229,20 @@ class AndThen_Expr : public Expr {
     }
     ~AndThen_Expr() = default;
 
+    // Accessor functions to retrieve the private variables e1 and e2.
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
+
+    // Overriding of accept virtual function to accept visitors.
     void accept(Visitor& v) { return v.visit(this); }
+
+    // Overriding of virtual functions to access the expression.
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() ? e2->eval() : false; }
-    Expr* getE1() { return e1; }
-    Expr* getE2() { return e2; }
 };
 
+// The operands of e1 OrElse e2 shall have type bool. The result type of OrElse shall have type bool.
 class OrElse_Expr : public Expr {
   private:
     Expr *e1, *e2;
@@ -201,11 +256,16 @@ class OrElse_Expr : public Expr {
     }
     ~OrElse_Expr() = default;
 
+    // Accessor functions to retrieve the private variables e1 and e2.
+    Expr* getE1() { return e1; }
+    Expr* getE2() { return e2; }
+
+    // Overriding of accept virtual function to accept visitors.
     void accept(Visitor& v) { return v.visit(this); }
+
+    // Overriding of virtual functions to access the expression.
     int weight() override { return 1 + e1->weight() + e2->weight(); }
     int height() override { return 1 + std::max(e1->height(),e2->height()); }
     int eval() override { return e1->eval() ? true : e2->eval(); }
-    Expr* getE1() { return e1; }
-    Expr* getE2() { return e2; }
 };
 #endif

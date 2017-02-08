@@ -28,6 +28,8 @@ class LessEqThan_Expr;
 class GreaterEqThan_Expr;
 class Negation_Expr;
 
+// Context class that creates the bool and int type that will be held as type* throughout the
+// program.
 class ASTcontext {
   public:
     const Bool_Type* Bool_;
@@ -35,6 +37,7 @@ class ASTcontext {
 
     ~ASTcontext();
 
+    // Lists that will be used to store references to Expr objects to be deleted.
     std::list<Bool_Expr> Bools;
     std::list<And_Expr> Ands;
     std::list<Or_Expr> Ors;
@@ -59,6 +62,7 @@ class ASTcontext {
     std::list<Negation_Expr> Negations;
 };
 
+// Clears all of the lists of references to release used memory.
 ASTcontext::~ASTcontext() {
   Bools.clear();
   Ands.clear();

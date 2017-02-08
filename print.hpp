@@ -4,13 +4,17 @@
 #include "bool_expr.hpp"
 #include "int_expr.hpp"
 
+// Helper Visitor function to set if each expression type need parens.
 bool needs_parens(Expr* e) {
   class V : public Expr::Visitor {
     private:
       bool r;
 
     public:
+      // Accessor function to retrieve the private variable r.
       bool getR() { return r; }
+
+      // Overriding of each visit virtual function set to the desired functionality of each expression.
       void visit(Bool_Expr* e) { r = false; }
       void visit(And_Expr* e) { r = true; }
       void visit(Or_Expr* e) { r = true; }
@@ -39,10 +43,13 @@ bool needs_parens(Expr* e) {
   return vis.getR();
 }
 
+// Implementation of the Visitor pattern allowing for the printing of each expression to be completed.
+// Returns nothing, only prints the expression to the terminal.
 void print(Expr *e)
 {
   class V : public Expr::Visitor {
-    public:
+    // Helper function that prints parens if they are needed for the expression e.
+    private:
       void print_enclosed(Expr* e) {
         if (needs_parens(e)) {
           std::cout << "(";
@@ -53,6 +60,8 @@ void print(Expr *e)
           print(e);
       }
 
+    public:
+      // Overriding of each visit virtual function set to the desired functionality of each expression.
       void visit(Bool_Expr* e) {
         if (e->getValue())
           std::cout << "True";

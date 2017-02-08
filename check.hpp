@@ -4,6 +4,8 @@
 #include "bool_expr.hpp"
 #include "int_expr.hpp"
 
+// Implementation of the Visitor pattern allowing for the type of an expression to be checked.
+// Returns the type of the expression e that is passed in.
 const Type* check(Expr* e, ASTcontext& cxt)
 {
   class V : public Expr::Visitor {
@@ -15,6 +17,10 @@ const Type* check(Expr* e, ASTcontext& cxt)
       V(ASTcontext cxt) : cxt(cxt) {}
       ~V() = default;
 
+      // Accessor function to retrieve the private variable r.
+      const Type* getR() { return r; }
+
+      // Overriding of each visit virtual function set to the desired functionality of each expression.
       void visit(Bool_Expr* e) { r = cxt.Bool_; }
       void visit(And_Expr* e) {
 	if (e->getType())
@@ -151,8 +157,6 @@ const Type* check(Expr* e, ASTcontext& cxt)
           r = cxt.Int_;
         else throw Type_Exception("Negation_Expr");
       }
-
-      const Type* getR() { return r; }
   };
   V vis(cxt);
   e->accept(vis);
