@@ -1,8 +1,8 @@
-#ifndef WEIGHT_H
-#define WEIGHT_H
+#ifndef WEIGHT_HPP
+#define WEIGHT_HPP
 
-#include "bool_expr.h"
-#include "int_expr.h"
+#include "bool_expr.hpp"
+#include "int_expr.hpp"
 
 int weight(Expr *e)
 {

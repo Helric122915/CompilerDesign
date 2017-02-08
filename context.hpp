@@ -1,7 +1,7 @@
-#ifndef CONTEXT_H
-#define CONTEXT_H
+#ifndef CONTEXT_HPP
+#define CONTEXT_HPP
 
-#include "type.h"
+#include "type.hpp"
 
 // Bool Expressions
 class Bool_Expr;

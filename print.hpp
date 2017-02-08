@@ -1,8 +1,8 @@
-#ifndef PRINT_H
-#define PRINT_H
+#ifndef PRINT_HPP
+#define PRINT_HPP
 
-#include "bool_expr.h"
-#include "int_expr.h"
+#include "bool_expr.hpp"
+#include "int_expr.hpp"
 
 bool needs_parens(Expr* e) {
   class V : public Expr::Visitor {

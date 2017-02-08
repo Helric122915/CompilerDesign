@@ -1,7 +1,7 @@
-#ifndef INT_EXPR_H
-#define INT_EXPR_H
+#ifndef INT_EXPR_HPP
+#define INT_EXPR_HPP
 
-#include "expr.h"
+#include "expr.hpp"
 
 class Int_Expr : public Expr {
   private:

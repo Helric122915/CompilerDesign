@@ -1,8 +1,8 @@
-#ifndef EVAL_H
-#define EVAL_H
+#ifndef EVAL_HPP
+#define EVAL_HPP
 
-#include "bool_expr.h"
-#include "int_expr.h"
+#include "bool_expr.hpp"
+#include "int_expr.hpp"
 
 int eval(Expr *e)
 {

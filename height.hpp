@@ -1,8 +1,8 @@
-#ifndef HEIGHT_H
-#define HEIGHT_H
+#ifndef HEIGHT_HPP
+#define HEIGHT_HPP
 
-#include "bool_expr.h"
-#include "int_expr.h"
+#include "bool_expr.hpp"
+#include "int_expr.hpp"
 
 int height(Expr *e)
 {

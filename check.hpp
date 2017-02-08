@@ -1,8 +1,8 @@
-#ifndef CHECK_H
-#define CHECK_H
+#ifndef CHECK_HPP
+#define CHECK_HPP
 
-#include "bool_expr.h"
-#include "int_expr.h"
+#include "bool_expr.hpp"
+#include "int_expr.hpp"
 
 const Type* check(Expr* e, ASTcontext& cxt)
 {

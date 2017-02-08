@@ -1,34 +1,7 @@
-#ifndef EXPR_H
-#define EXPR_H
+#ifndef EXPR_HPP
+#define EXPR_HPP
 
-#include "context.h"
-
-/*
-// Bool Expressions
-class Bool_Expr;
-class And_Expr;
-class Or_Expr;
-class Xor_Expr;
-class Not_Expr;
-class Eq_Expr;
-class NotEq_Expr;
-class Cond_Expr;
-class AndThen_Expr;
-class OrElse_Expr;
-
-// Int Expressions
-class Int_Expr;
-class Add_Expr;
-class Sub_Expr;
-class Mult_Expr;
-class Div_Expr;
-class Mod_Expr;
-class LessThan_Expr;
-class GreaterThan_Expr;
-class LessEqThan_Expr;
-class GreaterEqThan_Expr;
-class Negation_Expr;
-*/
+#include "context.hpp"
 
 class Expr {
   public:

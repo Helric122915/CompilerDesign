@@ -1,8 +1,8 @@
-#include "eval.h"
-#include "weight.h"
-#include "height.h"
-#include "check.h"
-#include "print.h"
+#include "eval.hpp"
+#include "weight.hpp"
+#include "height.hpp"
+#include "check.hpp"
+#include "print.hpp"
 
 void Evaluate_Int(Expr*, ASTcontext&);
 void Evaluate_Bool(Expr*, ASTcontext&);

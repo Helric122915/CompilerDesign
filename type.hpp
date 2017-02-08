@@ -1,5 +1,5 @@
-#ifndef TYPE_H
-#define TYPE_H
+#ifndef TYPE_HPP
+#define TYPE_HPP
 
 #include <stdexcept>
 #include <string>
