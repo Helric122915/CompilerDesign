@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <list>
+#include <limits>
 
 // Declares a specific exception to be thrown when a type error occurs.
 // This exception allows for a string to be passed when throwing the type exception.

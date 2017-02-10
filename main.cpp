@@ -12,6 +12,12 @@ int main()
   ASTcontext cxt;
 
   try {
+    /*
+    std::cout << "Testing Overflow\n";
+    Expr *overflow = new Mult_Expr(new Int_Expr(std::numeric_limits<int>::max() - 1,cxt),new Int_Expr(2,cxt),cxt);
+    Evaluate_Int(overflow,cxt);
+    */
+
     std::cout << "Testing Large Expression\n";
     Expr *largeE = new Mult_Expr(new Div_Expr(new Int_Expr(25,cxt),new Int_Expr(2,cxt),cxt),new Mult_Expr(new Sub_Expr(new Mod_Expr(new Int_Expr(35,cxt),new Int_Expr(4,cxt),cxt),new Int_Expr(5,cxt),cxt),new Add_Expr(new Int_Expr(15,cxt),new Int_Expr(6,cxt),cxt),cxt),cxt);
     Evaluate_Int(largeE,cxt);
@@ -93,6 +99,10 @@ int main()
     Evaluate_Int(negationE,cxt);
   }
   catch (Type_Exception e) {
+    std::cout << e.message() << "\n";
+    return 1;
+  }
+  catch (Overflow_Exception e) {
     std::cout << e.message() << "\n";
     return 1;
   }
