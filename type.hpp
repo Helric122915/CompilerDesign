@@ -2,6 +2,11 @@
 #define TYPE_HPP
 
 #include "exception.hpp"
+#include <string>
+#include <iostream>
+#include <algorithm>
+#include <list>
+#include <limits>
 
 // Declares the base type to be used for any expression.
 class Type {

@@ -3,6 +3,7 @@
 #include "height.hpp"
 #include "check.hpp"
 #include "print.hpp"
+#include "lexer.hpp"
 
 void Evaluate_Int(Expr*, ASTcontext&);
 void Evaluate_Bool(Expr*, ASTcontext&);
@@ -11,6 +12,24 @@ int main()
 {
   ASTcontext cxt;
 
+  std::string input;
+
+  std::cin >> input;
+
+  Lexer *lexe = new Lexer(input.begin(),input.end());
+
+  //while (lexe->next()) {
+    Token *tok = lexe->next();
+    tok->print();
+
+    tok = lexe->next();
+    if (tok)
+      tok->print();
+    else
+      std::cout << "tok is null\n";
+  //}
+
+  /*
   try {
     std::cout << "Testing Large Expression\n";
     Expr *largeE = new Mult_Expr(new Div_Expr(new Int_Expr(25,cxt),new Int_Expr(2,cxt),cxt),new Mult_Expr(new Sub_Expr(new Mod_Expr(new Int_Expr(35,cxt),new Int_Expr(4,cxt),cxt),new Int_Expr(5,cxt),cxt),new Add_Expr(new Int_Expr(15,cxt),new Int_Expr(6,cxt),cxt),cxt),cxt);
@@ -116,7 +135,7 @@ int main()
   catch (Overflow_Exception e) {
     std::cout << e.message() << "\n";
   }
-
+  */
   return 0;
 }
 
