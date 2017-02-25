@@ -8,26 +8,72 @@
 void Evaluate_Int(Expr*, ASTcontext&);
 void Evaluate_Bool(Expr*, ASTcontext&);
 
-int main()
+int main(int argc, char *argv[])
 {
   ASTcontext cxt;
+  std::string input, inputType, outputType;
+  
+  if (argv[1])
+    inputType = argv[1];
+  if (argv[2])
+    outputType = argv[2]; 
+  
+  if (inputType == "-b")
+    inputType = "2";
+  else if (inputType == "-h")
+    inputType = "16";
+  else
+    inputType = "10";
 
-  std::string input;
+  if (outputType == "-b")
+    outputType = "2";
+  else if (outputType == "-h")
+    outputType = "16";
+  else
+    outputType = "10";
 
-  std::cin >> input;
+  /*
+  while(inputType != "2" && inputType != "10"  && inputType != "16") {
+    std::cout << "What type are the input values? (decimal (10), binary (2) or hex (16))\n";
+    std::cin >> inputType;
+  }
+  while(outputType != "2" && outputType != "10" && outputType != "16") {
+    std::cout << "What type are the output values? (decimal (10), binary (2) or hex (16))\n";
+    std::cin >> outputType;
+  }
+  
+  std::cin.ignore();
+  */
 
-  Lexer *lexe = new Lexer(input.begin(),input.end());
+  try {
+    while (getline(std::cin, input)) {
+      if (input[0] != '#') {
+	std::cout << "Lexing Line: " << input << '\n';
 
-  //while (lexe->next()) {
-    Token *tok = lexe->next();
-    tok->print();
+	Lexer *lexe = new Lexer(input.begin(),input.end(),stoi(inputType),stoi(outputType));
 
-    tok = lexe->next();
-    if (tok)
-      tok->print();
-    else
-      std::cout << "tok is null\n";
-  //}
+	Token *tok = lexe->next();
+
+	while(tok) {
+	  tok->print();
+
+	  tok = lexe->next();
+
+          if (tok)
+	    std::cout << ", ";
+	}
+	
+	std::cout << '\n';
+
+	delete lexe;
+      }
+      else
+	std::cout << "Comment: " << input.substr(1) << '\n';;
+    }
+  }
+  catch (Token_Exception e) {
+    std::cout << e.message() << '\n';
+  }
 
   /*
   try {

@@ -4,77 +4,12 @@
 #include <iostream>
 #include <string>
 
+void printInt(int,int);
+std::string convertBinary(int);
 std::string printName(int);
 
-class Token {
-public:
-  int name;
-
-  virtual ~Token() = default;
-  virtual void print() = 0;
-};
-
-class Punct_Token : public Token {
-public:
-  Punct_Token(int name) { this->name = name; }
-
-  void print() { std::cout << printName(name) << '\n'; }
-};
-
-class Bool_Token : public Token {
-private:
-  bool value;
-
-public:
-  Bool_Token(bool b, int name) : value(b) { this->name = name; }
-
-  bool getValue() { return value; }
-  void print() { std::cout << printName(name) << " : " << (value ? "true\n" : "false\n"); }
-};
-
-class Int_Token : public Token {
-private:
-  int value;
-
-public:
-  Int_Token(int i, int name) : value(i) { this->name = name; }
-
-  int getValue() { return value; }
-  void print() { std::cout << printName(name) << " : " << value << '\n'; }
-};
-
-std::string printName(int name) {
-  switch(name) {
-    case 0: return "Eof_Tok";
-    case 1: return "Eq_Tok";
-    case 2: return "NotEq_Tok";
-    case 3: return "LParens_Tok";
-    case 4: return "RParens_Tok";
-    case 5: return "LessThan_Tok";
-    case 6: return "LessEqThan_Tok";
-    case 7: return "GreaterThan_Tok";
-    case 8: return "GreaterEqThan_Tok";
-    case 9: return "Plus_Tok";
-    case 10: return "Minus_Tok";
-    case 11: return "Mult_Tok";
-    case 12: return "Div_Tok";
-    case 13: return "Mod_Tok";
-    case 14: return "Not_Tok";
-    case 15: return "Or_Tok";
-    case 16: return "OrElse_Tok";
-    case 17: return "And_Tok";
-    case 18: return "AndThen_Tok";
-    case 19: return "Xor_Tok";
-    case 20: return "QuestionMark_Tok";
-    case 21: return "Colon_Tok";
-    case 22: return "Int_Tok";
-    case 23: return "Bool_Tok";
-    case 24: return "Str_Tok";
-  }
-}
-
 enum Token_Kind {
-  Eof_Tok,
+Eof_Tok,
   Eq_Tok,
   NotEq_Tok,
   LParens_Tok,
@@ -94,10 +29,130 @@ enum Token_Kind {
   And_Tok,
   AndThen_Tok,
   Xor_Tok,
+  OneComplement_Tok,
   QuestionMark_Tok,
   Colon_Tok,
   Int_Tok,
   Bool_Tok,
   Str_Tok
 };
+
+class Token {
+public:
+  int name;
+
+  virtual ~Token() = default;
+  virtual void print() = 0;
+};
+
+class Punct_Token : public Token {
+public:
+  Punct_Token(int name) { this->name = name; }
+
+  void print() { std::cout << printName(name); }
+};
+
+class Bool_Token : public Token {
+private:
+  bool value;
+
+public:
+  Bool_Token(bool b) : value(b) { this->name = Bool_Tok; }
+
+  bool getValue() { return value; }
+  void print() { std::cout << printName(name) << " : " << (value ? "true" : "false"); }
+};
+
+class Int_Token : public Token {
+private:
+  int value;
+  int rep;
+
+public:
+  Int_Token(int i, int rep) : value(i), rep(rep) { this->name = Int_Tok; }
+
+  int getValue() { return value; }
+  void print() { std::cout << printName(name) << " : "; printInt(value, rep); }
+};
+
+void printInt(int value, int rep) {
+  switch (rep) {
+  case 2: std::cout << convertBinary(value); break;
+  case 10: std::cout << value; break;
+  case 16: std::cout << std::hex << value; break;
+  }
+}
+
+std::string convertBinary(int value) {
+  int temp = abs(value);
+  std::string returnString = "";
+
+  while (temp > 0) {
+    if (temp % 2 == 0)
+      returnString.insert(0, "0");
+    else
+      returnString.insert(0, "1"); 
+
+    temp = floor(temp / 2);
+  }
+
+
+  /* Currently don't need because there aren't negative numbers
+     Just have the form Negation_Expr Int_Expr
+  bool carry = true;
+  int sum;
+
+  if (value < 0) {
+    for (int i = 0; i < returnString.length() - 1; ++i) {
+      returnString[i] = (returnString[i] ? 0 : 1);
+    }
+    for (int i = returnString.length() -1; i > 0; --i) {
+      sum = carry + returnString[i];
+      carry = false;
+
+      if (sum == 0)
+	returnString[i] = 0;
+      else if (sum = 1)
+	returnString[i] = 1;
+      else {
+	returnString[i] = 1;
+	carry = true;
+      }
+    }
+  }
+  */
+
+  return returnString;
+}
+
+std::string printName(int name) {
+  switch(name) {
+  case 0: return "Eof_Tok";
+  case 1: return "Eq_Tok";
+  case 2: return "NotEq_Tok";
+  case 3: return "LParens_Tok";
+  case 4: return "RParens_Tok";
+  case 5: return "LessThan_Tok";
+  case 6: return "LessEqThan_Tok";
+  case 7: return "GreaterThan_Tok";
+  case 8: return "GreaterEqThan_Tok";
+  case 9: return "Plus_Tok";
+  case 10: return "Minus_Tok";
+  case 11: return "Mult_Tok";
+  case 12: return "Div_Tok";
+  case 13: return "Mod_Tok";
+  case 14: return "Not_Tok";
+  case 15: return "Or_Tok";
+  case 16: return "OrElse_Tok";
+  case 17: return "And_Tok";
+  case 18: return "AndThen_Tok";
+  case 19: return "Xor_Tok";
+  case 20: return "OneComplement_Tok";
+  case 21: return "QuestionMark_Tok";
+  case 22: return "Colon_Tok";
+  case 23: return "Int_Tok";
+  case 24: return "Bool_Tok";
+  case 25: return "Str_Tok";
+  }
+}
 #endif

@@ -2,7 +2,7 @@
 #define LEXER_HPP
 
 #include <string>
-#include <cctype>
+//#include <cctype>
 #include "token.hpp"
 #include "exception.hpp"
 
@@ -10,40 +10,42 @@ class Lexer {
 private:
   std::string::iterator first;
   std::string::iterator last;
-  //const char *first;
-  //const char *last;
-  std::string buffer;
+  std::string buff;
+  int numberRepIn;
+  int numberRepOut;
 
   bool eof() const { return first == last; }
   char lookahead() const { return(eof() ? 0 : *first); }
   char ignore() { return (eof() ? 0 : *first++); }
-  char consume();
+  void consume() { ++first; };
+  char buffer();
   Token* lexeInt();
   Token* lexeBool(bool b);
+  Token* decideType();
 
 public:
-  Lexer(std::string::iterator first, std::string::iterator last) : first(first), last(last) {}
+  Lexer(std::string::iterator first, std::string::iterator last, int repIn, int repOut) : first(first), last(last), numberRepIn(repIn), numberRepOut(repOut) {}
   ~Lexer() = default;
 
   Token* next();
 };
 
-char Lexer::consume() {
+char Lexer::buffer() {
   if (eof())
     return 0;
 
-  buffer += *first++;
-  return buffer.back();
+  buff += *first++;
+  return buff.back();
 }
 
 Token* Lexer::next() {
-  buffer.clear();
+  buff.clear();
 
-  while(!eof()){
+  while(!eof()) {
     switch(lookahead()) {
-    case '(': {  consume();
+    case '(': { consume();
 	return new Punct_Token(LParens_Tok);
-	  }
+    }
     case ')': { consume();
 	return new Punct_Token(RParens_Tok);
     }
@@ -116,6 +118,9 @@ Token* Lexer::next() {
     case '^': { consume();
         return new Punct_Token(Xor_Tok);
     }
+    case '~': { consume();
+	return new Punct_Token(OneComplement_Tok);
+    }
     case '0':
     case '1':
     case '2':
@@ -125,12 +130,20 @@ Token* Lexer::next() {
     case '6':
     case '7':
     case '8':
-    case '9': return lexeInt();
+    case '9': 
+    case 'a':
+    case 'b':
+    case 'c':
+    case 'd':
+    case 'e': return lexeInt();
+    case 'f': return decideType();
     case 't': return lexeBool(true);
-    case 'f': return lexeBool(false);
-    case ' ': ignore();
-    case '\n': ignore();
-    case '\t': ignore();
+    case ' ': 
+    case '\n': 
+    case '\t': 
+    case '\v': 
+    case '\f': 
+    case '\r': ignore();
       continue;
     }
   }
@@ -138,12 +151,11 @@ Token* Lexer::next() {
 }
 
 Token* Lexer::lexeInt() {
-  consume();
-  while(!eof() && std::isdigit(lookahead())) {
-    consume();
-  }
+  buffer();
+  while(!eof() && (std::isdigit(lookahead()) || std::isalpha(lookahead())))
+    buffer();
 
-  return new Int_Token(std::stoi(buffer),Int_Tok);
+  return new Int_Token(std::stol(buff, nullptr, numberRepIn), numberRepOut);
 }
 
 Token* Lexer::lexeBool(bool b) {
@@ -155,7 +167,7 @@ Token* Lexer::lexeBool(bool b) {
         consume();
         if (lookahead() == 'e') {
           consume();
-          return new Bool_Token(true, Bool_Tok);
+          return new Bool_Token(true);
         }
         else
           throw Token_Exception("Expected e following u to form true boolean.");
@@ -167,28 +179,36 @@ Token* Lexer::lexeBool(bool b) {
       throw Token_Exception("Expected r following t to form true boolean.");
   }
   else {
-    if (lookahead() == 'a') {
-      consume();
-      if (lookahead() == 'l') {
-        consume();
-        if (lookahead() == 's') {
-          consume();
-          if (lookahead() == 'e') {
-            consume();
-            return new Bool_Token(false, Bool_Tok);
-          }
-          else
-            throw Token_Exception("Expected e following s to form false boolean.");
-        }
-        else
-          throw Token_Exception("Expected s following l to form false boolean.");
+      if (lookahead() == 's') {
+	consume();
+	if (lookahead() == 'e') {
+	  consume();
+	  return new Bool_Token(false);
+	}
+	else
+	  throw Token_Exception("Expected e following s to form false boolean.");
       }
       else
-        throw Token_Exception("Expected l following a to form false boolean.");
-    }
-    else
-      throw Token_Exception("Expected a following f to form false boolean.");
+	throw Token_Exception("Expected s following l to form false boolean.");
   }
+
   return nullptr;
+}
+
+Token* Lexer::decideType() {
+  buffer();
+  if (lookahead() == 'a') {
+    buffer();
+    if (lookahead() == 'l')
+      lexeBool(false);
+    else if (std::isdigit(lookahead()) || std::isalpha(lookahead()))
+      lexeInt();
+    else
+      throw Token_Exception("Expected either l or hex value.");
+  }
+  else if (std::isdigit(lookahead()) || std::isalpha(lookahead()))
+    lexeInt();
+  else
+    return new Int_Token(std::stol(buff, nullptr, numberRepIn), numberRepOut);    
 }
 #endif
