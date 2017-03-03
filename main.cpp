@@ -32,19 +32,6 @@ int main(int argc, char *argv[])
   else
     outputType = "10";
 
-  /*
-  while(inputType != "2" && inputType != "10"  && inputType != "16") {
-    std::cout << "What type are the input values? (decimal (10), binary (2) or hex (16))\n";
-    std::cin >> inputType;
-  }
-  while(outputType != "2" && outputType != "10" && outputType != "16") {
-    std::cout << "What type are the output values? (decimal (10), binary (2) or hex (16))\n";
-    std::cin >> outputType;
-  }
-  
-  std::cin.ignore();
-  */
-
   try {
     while (getline(std::cin, input)) {
       if (input[0] != '#') {
