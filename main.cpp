@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
           if (tok)
 	    std::cout << ", ";
 	}
-	
+
 	std::cout << '\n';
 
 	delete lexe;
