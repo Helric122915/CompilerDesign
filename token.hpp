@@ -9,7 +9,7 @@ std::string convertBinary(int);
 std::string printName(int);
 
 enum Token_Kind {
-Eof_Tok,
+  Eof_Tok,
   Eq_Tok,
   NotEq_Tok,
   LParens_Tok,
@@ -121,7 +121,6 @@ std::string convertBinary(int value) {
     }
   }
   */
-
   return returnString;
 }
 
@@ -153,6 +152,7 @@ std::string printName(int name) {
   case 23: return "Int_Tok";
   case 24: return "Bool_Tok";
   case 25: return "Str_Tok";
+  default: "Invalid Token";
   }
 }
 #endif

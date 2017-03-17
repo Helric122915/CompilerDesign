@@ -47,4 +47,16 @@ public:
     return "A Token Exception Error of Type: " + type;
   }
 };
+
+// Declares a specific exception to be thrown when a token doesn't match what is expected.
+// This exception allows for a string to be passed when throwing the syntax exception.
+class Syntax_Exception : public Base_Exception {
+public:
+  Syntax_Exception(std::string type) { this->type = type; }
+  ~Syntax_Exception() = default;
+
+  virtual std::string message() const throw() {
+    return "A Syntax Exception Error of Type: " + type;
+  }
+};
 #endif

@@ -4,6 +4,7 @@
 #include "check.hpp"
 #include "print.hpp"
 #include "lexer.hpp"
+#include "parser.hpp"
 
 void Evaluate_Int(Expr*, ASTcontext&);
 void Evaluate_Bool(Expr*, ASTcontext&);
@@ -35,24 +36,44 @@ int main(int argc, char *argv[])
   try {
     while (getline(std::cin, input)) {
       if (input[0] != '#') {
-	std::cout << "Lexing Line: " << input << '\n';
+	std::cout << "Lexing Line Using Vector: " << input << '\n';
 
 	Lexer *lexe = new Lexer(input.begin(),input.end(),stoi(inputType),stoi(outputType));
+
+	std::vector<Token*> tokens;
 
 	Token *tok = lexe->next();
 
 	while(tok) {
-	  tok->print();
+	  //tok->print();
+
+	  tokens.push_back(tok);
 
 	  tok = lexe->next();
 
-          if (tok)
-	    std::cout << ", ";
+          //if (tok)
+	  //  std::cout << ", ";
 	}
 
+	for (std::vector<Token*>::iterator it = tokens.begin(); it != tokens.end(); ++it) {
+	  (*it)->print();
+
+	  if (std::next(it) != tokens.end())
+	    std::cout << ", ";
+	}
 	std::cout << '\n';
 
+	Parser *parse = new Parser(tokens, cxt);
+
+	Expr* expr = parse->next();
+
+	if (expr->getType() == cxt.Int_)
+	  Evaluate_Int(expr,cxt);
+	else if (expr->getType() == cxt.Bool_)
+	  Evaluate_Bool(expr,cxt);
+
 	delete lexe;
+	delete parse;
       }
       else
 	std::cout << "Comment: " << input.substr(1) << '\n';;

@@ -2,7 +2,6 @@
 #define LEXER_HPP
 
 #include <string>
-//#include <cctype>
 #include "token.hpp"
 #include "exception.hpp"
 
@@ -17,7 +16,7 @@ private:
   bool eof() const { return first == last; }
   char lookahead() const { return(eof() ? 0 : *first); }
   char ignore() { return (eof() ? 0 : *first++); }
-  void consume() { ++first; };
+  void consume() { ++first; }
   char buffer();
   Token* lexeInt();
   Token* lexeBool(bool b);
