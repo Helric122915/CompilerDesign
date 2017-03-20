@@ -150,9 +150,25 @@ Token* Lexer::next() {
 }
 
 Token* Lexer::lexeInt() {
+  //std::cout << "Lexing Int: " << lookahead() << '\n';
+
   buffer();
-  while(!eof() && (std::isdigit(lookahead()) || std::isalpha(lookahead())))
+  while(!eof() && (std::isdigit(lookahead()) || std::isalpha(lookahead()))) {
+    //std::cout << "Lexing: " << lookahead() << '\n';
     buffer();
+  }
+
+  //std::cout << "Current Buffer: " << buff << '\n';
+
+  //std::cout << "Number Rep In: " << numberRepIn << '\n';
+
+  //std::cout << std::stol(buff, nullptr, numberRepIn) << '\n';
+
+  //Int_Token* tok = new Int_Token(std::stol(buff, nullptr, numberRepIn), numberRepOut);
+
+  //  tok->print();
+
+  //return tok;
 
   return new Int_Token(std::stol(buff, nullptr, numberRepIn), numberRepOut);
 }

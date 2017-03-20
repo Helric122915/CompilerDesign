@@ -7,17 +7,17 @@
 // the expression.
 class Int_Expr : public Expr {
 private:
-  int value;
+  int value, rep;
 
 public:
-  Int_Expr(int value, ASTcontext &cxt) : value(value) {
+  Int_Expr(int value, int rep, ASTcontext &cxt) : value(value), rep(rep) {
     this->type = cxt.Int_;
   }
   ~Int_Expr() = default;
   
   // Accessor function to retrieve the private variable value.
   int getValue() { return value; }
-  
+  int getRep() { return rep; }  
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
   

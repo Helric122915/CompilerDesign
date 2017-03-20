@@ -4,6 +4,9 @@
 #include "bool_expr.hpp"
 #include "int_expr.hpp"
 
+std::string convertBinary(int);
+void printInt(int, int);
+
 // Helper Visitor function to set if each expression type need parens.
 bool needs_parens(Expr* e) {
   class V : public Expr::Visitor {
@@ -65,9 +68,9 @@ void print(Expr *e)
     // Overriding of each visit virtual function set to the desired functionality of each expression.
     void visit(Bool_Expr* e) {
       if (e->getValue())
-	std::cout << "True";
+	std::cout << "true";
       else
-	std::cout << "False";
+	std::cout << "false";
     }
     void visit(And_Expr* e) {
       print_enclosed(e->getE1());
@@ -107,21 +110,23 @@ void print(Expr *e)
     }
     void visit(AndThen_Expr* e) {
       print_enclosed(e->getE1());
-      std::cout << " ? ";
+      //std::cout << " ? ";
+      std::cout << " && ";
       print_enclosed(e->getE2());
-      std::cout << " : ";
-      std::cout << "False";
+      //std::cout << " : ";
+      //std::cout << "false";
     }
     void visit(OrElse_Expr* e) {
       print_enclosed(e->getE1());
-      std::cout << " ? ";
-      std::cout << "True";
-      std::cout << " : ";
+      std::cout << " || ";
+      //std::cout << " ? ";
+      //std::cout << "true";
+      //std::cout << " : ";
       print_enclosed(e->getE2());
     }
 
     void visit(Int_Expr* e) {
-      std::cout << e->getValue();
+      printInt(e->getValue(), e->getRep());
     }
     void visit(Add_Expr* e) {
       print_enclosed(e->getE1());
@@ -179,5 +184,27 @@ void print(Expr *e)
   };
   V vis;
   e->accept(vis);
+}
+
+
+void printInt(int value, int rep) {
+  switch (rep) {
+  case 2: std::cout << convertBinary(value); break;
+  case 10: std::cout << value; break;
+  case 16: std::cout << std::hex << value; break;
+  }
+}
+
+std::string convertBinary(int value) {
+  int temp = abs(value);
+  std::string returnString = "";
+
+  while (temp > 0) {
+    returnString.insert(0, std::to_string(temp % 2));
+
+    temp = floor(temp / 2);
+  }
+
+  return returnString;
 }
 #endif

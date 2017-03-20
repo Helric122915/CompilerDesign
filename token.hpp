@@ -4,8 +4,8 @@
 #include <iostream>
 #include <string>
 
-void printInt(int,int);
-std::string convertBinary(int);
+void printIntLexer(int,int);
+std::string convertBinaryLexer(int);
 std::string printName(int);
 
 enum Token_Kind {
@@ -72,10 +72,12 @@ public:
   Int_Token(int i, int rep) : value(i), rep(rep) { this->name = Int_Tok; }
 
   int getValue() { return value; }
-  void print() { std::cout << printName(name) << " : "; printInt(value, rep); }
+  int getRep() { return rep; }
+  void print() { std::cout << printName(name) << " : "; printIntLexer(value, rep); }
 };
 
-void printInt(int value, int rep) {
+
+void printIntLexer(int value, int rep) {
   switch (rep) {
   case 2: std::cout << convertBinary(value); break;
   case 10: std::cout << value; break;
@@ -83,22 +85,19 @@ void printInt(int value, int rep) {
   }
 }
 
-std::string convertBinary(int value) {
+std::string convertBinaryLexer(int value) {
   int temp = abs(value);
   std::string returnString = "";
 
   while (temp > 0) {
-    if (temp % 2 == 0)
-      returnString.insert(0, "0");
-    else
-      returnString.insert(0, "1"); 
+    returnString.insert(0, std::to_string(temp % 2));
 
     temp = floor(temp / 2);
   }
 
-
-  /* Currently don't need because there aren't negative numbers
-     Just have the form Negation_Expr Int_Expr
+  /*
+  // Currently don't need because there aren't negative numbers
+  // Just have the form Negation_Expr Int_Expr
   bool carry = true;
   int sum;
 
