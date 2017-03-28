@@ -4,41 +4,62 @@
 #include <vector>
 #include "int_expr.hpp"
 #include "bool_expr.hpp"
+#include "eval.hpp"
 #include "token.hpp"
+#include "stmt.hpp"
 
 class Parser {
 private:
   std::vector<Token*> tokens;
   std::vector<Token*>::iterator it;
-  ASTcontext cxt;
+  int numberRepOut;
+  ASTcontext* cxt;
 
   bool eof() const { return it == tokens.end(); }
   Token* lookahead() const { return (eof() ? new Punct_Token(Eof_Tok) : *it); }
-  void consume() { ++it; }
-  void match(Token_Kind k);
+  Token* consume();
+  Token* match(Token_Kind k);
   bool match_if(Token_Kind k);
   bool match_if(Token_Kind k, Token*&);
+  Stmt* statement();
+  Stmt* declaration_statement();
+  Stmt* expression_statement();
+  Decl* declaration();
+  Decl* variable_declaration();
+  const Type* type_specifier();
+  const Type* simple_type_specifier();
   Expr* parseExpr();
   Expr* parseCondExpr();
   Expr* parseLogicOrExpr();
   Expr* parseLogicAndExpr();
+  Expr* parseBitWiseOrExpr();
+  Expr* parseBitWiseXorExpr();
+  Expr* parseBitWiseAndExpr();
   Expr* parseEqualExpr();
   Expr* parseOrderExpr();
   Expr* parseAddExpr();
   Expr* parseMultExpr();
   Expr* parseUnaryExpr();
   Expr* parsePrimaryExpr();
+  const std::string identifier();
 
 public:
-  Parser(std::vector<Token*> tokens, ASTcontext cxt) : tokens(tokens), cxt(cxt) { it = this->tokens.begin(); }
+  Parser(std::vector<Token*> tokens, int repOut, ASTcontext* cxt) : tokens(tokens), numberRepOut(repOut), cxt(cxt) { it = this->tokens.begin(); }
   ~Parser() = default;
 
-  Expr* next() { return parseExpr(); }
+  //Expr* next() { return parseExpr(); }
+  Stmt* next() { return statement(); }
 };
 
-void Parser::match(Token_Kind k) {
+Token* Parser::consume() {
+  Token* tok = lookahead();
+  ++it;
+  return tok;
+}
+
+Token* Parser::match(Token_Kind k) {
   if (lookahead()->name == k)
-    consume();
+    return consume();
   else
     throw Syntax_Exception("Expected: " + printName(k));
 }
@@ -62,6 +83,74 @@ bool Parser::match_if(Token_Kind k, Token* & val) {
     return false;
 }
 
+Stmt* Parser::statement() {
+  switch (lookahead()->name) {
+  case Var_Kw:
+    return declaration_statement();
+  default:
+    return expression_statement();
+  }
+}
+
+Stmt* Parser::declaration_statement() {
+  Decl* dec = declaration();
+  return new Decl_Stmt(dec);
+}
+
+Stmt* Parser::expression_statement() {
+  Expr* exp = parseExpr();
+  match_if(Semicolon_Tok);
+  return new Expr_Stmt(exp);
+}
+
+Decl* Parser::declaration() {
+  match(Var_Kw);
+  return variable_declaration();
+}
+
+Decl* Parser::variable_declaration() {
+  const Type* t = type_specifier();
+  const std::string id = identifier();
+
+  if (Decl* dec = (*cxt).retrieveSymbol(id))
+      throw Semantic_Exception("Variable " + id + " is already defined.");
+  
+  Var_Decl* dec = new Var_Decl(id);
+  dec->type = t;
+  match(Assign_Tok);
+  Expr* expr = parseExpr();
+
+  if (t != expr->getType())
+    throw Type_Exception("Type does not match declaration");
+
+  if (t == (*cxt).Int_)
+    expr = new Int_Expr(eval(expr), numberRepOut, cxt);
+  else if (t == (*cxt).Bool_)
+    expr = new Bool_Expr(eval(expr), cxt);
+
+  dec->init = expr;
+
+  (*cxt).insertDecl(dec);
+
+  match_if(Semicolon_Tok);
+  return dec;
+}
+
+const Type* Parser::type_specifier() {
+  return simple_type_specifier();
+}
+
+const Type* Parser::simple_type_specifier() {
+  switch(lookahead()->name) {
+  case Int_Kw: consume();
+    return (*cxt).Int_;
+  case Bool_Kw: consume();
+    return (*cxt).Bool_;
+  default:
+    throw Syntax_Exception("Expected type after var keyword.");
+  }
+}
+
 Expr* Parser::parseExpr() {
   return parseCondExpr();
 }
@@ -77,8 +166,8 @@ Expr* Parser::parseCondExpr() {
       if (match_if(Colon_Tok))
 	t1 = new Cond_Expr(t1,t2, parseExpr(), cxt);
     }
-    else;
-    break;
+    else
+      break;
   }
 
   return t1;
@@ -90,11 +179,7 @@ Expr* Parser::parseLogicOrExpr() {
   Expr* t1 = parseLogicAndExpr();
 
   while (true) {
-    if (match_if(Or_Tok))
-      t1 = new Or_Expr(t1, parseLogicAndExpr(), cxt);
-    else if (match_if(Xor_Tok))
-      t1 = new Xor_Expr(t1, parseLogicAndExpr(), cxt);
-    else if (match_if(OrElse_Tok))
+    if (match_if(OrElse_Tok))
       t1 = new OrElse_Expr(t1, parseLogicAndExpr(), cxt);
     else
       break;
@@ -106,17 +191,54 @@ Expr* Parser::parseLogicOrExpr() {
 Expr* Parser::parseLogicAndExpr() {
   //std::cout << "Parsing Logic And\n";
 
+  Expr* t1 = parseBitWiseOrExpr();
+
+  while (true) {
+    if (match_if(AndThen_Tok))
+      t1 = new AndThen_Expr(t1, parseBitWiseOrExpr(), cxt);
+    else
+      break;
+  }
+  
+  return t1;
+}
+
+Expr* Parser::parseBitWiseOrExpr() {
+  Expr* t1 = parseBitWiseXorExpr();
+
+  while (true) {
+    if (match_if(Or_Tok))
+      t1 = new Or_Expr(t1, parseBitWiseXorExpr(), cxt);
+    else
+      break;
+  }
+
+  return t1;
+}
+
+Expr* Parser::parseBitWiseXorExpr() {
+  Expr* t1 = parseBitWiseAndExpr();
+
+  while (true) {
+    if (match_if(Xor_Tok))
+      t1 = new Xor_Expr(t1, parseBitWiseAndExpr(), cxt);
+    else
+      break;
+  }
+
+  return t1;
+}
+
+Expr* Parser::parseBitWiseAndExpr() {
   Expr* t1 = parseEqualExpr();
 
   while (true) {
     if (match_if(And_Tok))
       t1 = new And_Expr(t1, parseEqualExpr(), cxt);
-    else if (match_if(AndThen_Tok))
-      t1 = new AndThen_Expr(t1, parseEqualExpr(), cxt);
     else
       break;
   }
-  
+
   return t1;
 }
 
@@ -210,24 +332,52 @@ Expr* Parser::parseUnaryExpr() {
 Expr* Parser::parsePrimaryExpr() {
   Token* temp;
 
-  //std::cout << "Parsing Primary\n";
-
   if (match_if(Int_Tok,temp)) {
     Int_Token* token = dynamic_cast<Int_Token*>(temp);
     return new Int_Expr(token->getValue(), token->getRep(), cxt);
-    //return new Int_Expr(dynamic_cast<Int_Token*>(temp)->getValue(), cxt);
   }
   else if (match_if(Bool_Tok,temp))
     return new Bool_Expr(dynamic_cast<Bool_Token*>(temp)->getValue(), cxt);
   else if (match_if(LParens_Tok)) {
-    Expr *ex = parseExpr();
+    Expr* expr = parseExpr();
 
     if (!match_if(RParens_Tok))
       throw Syntax_Exception("Missing Expected Closing Paren");
     else
-      return ex;
+      return expr;
+  }
+  else if (match_if(Ident_Tok, temp)) {
+    std::string variable = *dynamic_cast<Ident_Token*>(temp)->value;
+    Var_Decl* dec = dynamic_cast<Var_Decl*>((*cxt).retrieveSymbol(variable));//*dynamic_cast<Ident_Token*>(temp)->value));
+
+    if (!dec)
+      throw Semantic_Exception("Variable " + variable + " has not been defined.");
+
+    if (match_if(Assign_Tok)) {
+      Expr* expr = parseExpr();
+
+      if (expr->getType() == (*cxt).Int_)
+	expr = new Int_Expr(eval(expr), numberRepOut, cxt);
+      else if (expr->getType() == (*cxt).Bool_)
+	expr = new Bool_Expr(eval(expr), cxt);
+
+      dec->init = expr;
+      (*cxt).insertDecl(dec);
+
+      return expr;
+    }
+
+    if (dec)
+      return dec->init;
+    else
+      throw Semantic_Exception("Variable " + variable + " has no definition");
   }
   else
     throw Syntax_Exception("Expecting Primary Expression");
+}
+
+const std::string Parser::identifier() {
+  Token* id = match(Ident_Tok);
+  return *dynamic_cast<Ident_Token*>(id)->value;
 }
 #endif

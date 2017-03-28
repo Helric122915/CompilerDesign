@@ -2,6 +2,8 @@
 #define CONTEXT_HPP
 
 #include "type.hpp"
+#include "token.hpp"
+#include "decl.hpp"
 
 // Bool Expressions
 class Bool_Expr;
@@ -33,60 +35,67 @@ class OneComplement_Expr;
 // program.
 class ASTcontext {
 public:
-  const Bool_Type* Bool_;
-  const Int_Type* Int_;
+  const Bool_Type* Bool_ = new Bool_Type();
+  const Int_Type* Int_ = new Int_Type();
+  std::unordered_map<std::string, Token*> Keywords;
+  std::unordered_map<std::string, Decl*> SymTab;
 
-  ~ASTcontext();
+  ASTcontext();
+  ~ASTcontext() = default;
 
-  // Lists that will be used to store references to Expr objects to be deleted.
-  std::list<Bool_Expr> Bools;
-  std::list<And_Expr> Ands;
-  std::list<Or_Expr> Ors;
-  std::list<Xor_Expr> Xors;
-  std::list<Not_Expr> Nots;
-  std::list<Eq_Expr> Eqs;
-  std::list<NotEq_Expr> Noteqs;
-  std::list<Cond_Expr> Conds;
-  std::list<AndThen_Expr> Andthens;
-  std::list<OrElse_Expr> Orelses;
-
-  std::list<Int_Expr> Ints;
-  std::list<Add_Expr> Adds;
-  std::list<Sub_Expr> Subs;
-  std::list<Mult_Expr> Mults;
-  std::list<Div_Expr> Divs;
-  std::list<Mod_Expr> Mods;
-  std::list<LessThan_Expr> Lessthans;
-  std::list<GreaterThan_Expr> Greaterthans;
-  std::list<LessEqThan_Expr> Lesseqthans;
-  std::list<GreaterEqThan_Expr> Greatereqthans;
-  std::list<Negation_Expr> Negations;
-  std::list<OneComplement_Expr> Complements;
+  Token* checkKeywords(std::string);
+  Token* insertSymbol(std::string);
+  bool insertDecl(Decl*);
+  Decl* retrieveSymbol(std::string);
 };
 
-// Clears all of the lists of references to release used memory.
-ASTcontext::~ASTcontext() {
-  Bools.clear();
-  Ands.clear();
-  Ors.clear();
-  Xors.clear();
-  Nots.clear();
-  Eqs.clear();
-  Noteqs.clear();
-  Conds.clear();
-  Andthens.clear();
-  Orelses.clear();
+ASTcontext::ASTcontext() {
+  Keywords.insert({"var", new Ident_Token(Var_Kw)});
+  Keywords.insert({"int", new Ident_Token(Int_Kw)});
+  Keywords.insert({"bool", new Ident_Token(Bool_Kw)});
+  Keywords.insert({"true", new Bool_Token(true)});
+  Keywords.insert({"false", new Bool_Token(false)});
+}
 
-  Ints.clear();
-  Adds.clear();
-  Subs.clear();
-  Mults.clear();
-  Divs.clear();
-  Lessthans.clear();
-  Greaterthans.clear();
-  Lesseqthans.clear();
-  Greatereqthans.clear();
-  Negations.clear();
-  Complements.clear();
+Token* ASTcontext::checkKeywords(std::string identifier) {
+  auto iter = Keywords.find(identifier);
+  if (iter == Keywords.end())
+    return nullptr;
+  else
+    return iter->second;
+}
+
+Token* ASTcontext::insertSymbol(std::string identifier) {
+  Ident_Token* tok = new Ident_Token(Ident_Tok);
+
+  auto iter = SymTab.find(identifier);
+  if (iter != SymTab.end()) {
+    tok->value = &(iter->first);
+    return tok;
+  }
+  else {
+    auto result = SymTab.insert({identifier, nullptr});
+    iter = result.first;
+    tok->value = &(iter->first);
+    return tok;
+  }
+}
+
+bool ASTcontext::insertDecl(Decl* dec) {
+  auto iter = SymTab.find(dynamic_cast<Var_Decl*>(dec)->getName());
+  if (iter != SymTab.end()) {
+    iter->second = dec;
+    return true;
+  }
+  else
+    return false;
+}
+
+Decl* ASTcontext::retrieveSymbol(std::string identifier) {
+  auto iter = SymTab.find(identifier);
+  if (iter != SymTab.end())
+    return iter->second;
+
+  return nullptr;
 }
 #endif

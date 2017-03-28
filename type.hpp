@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <list>
 #include <limits>
+#include <unordered_map>
 
 // Declares the base type to be used for any expression.
 class Type {

@@ -34,7 +34,12 @@ enum Token_Kind {
   Colon_Tok,
   Int_Tok,
   Bool_Tok,
-  Str_Tok
+  Ident_Tok,
+  Int_Kw,
+  Bool_Kw,
+  Var_Kw,
+  Semicolon_Tok,
+  Assign_Tok
 };
 
 class Token {
@@ -76,10 +81,17 @@ public:
   void print() { std::cout << printName(name) << " : "; printIntLexer(value, rep); }
 };
 
+class Ident_Token : public Token {
+public:
+  Ident_Token(int name) { this->name = name; }
+
+  const std::string* value;
+  void print() { std::cout << printName(name) << (value ? " : " + *value : ""); }
+};
 
 void printIntLexer(int value, int rep) {
   switch (rep) {
-  case 2: std::cout << convertBinary(value); break;
+  case 2: std::cout << convertBinaryLexer(value); break;
   case 10: std::cout << value; break;
   case 16: std::cout << std::hex << value; break;
   }
@@ -150,7 +162,12 @@ std::string printName(int name) {
   case 22: return "Colon_Tok";
   case 23: return "Int_Tok";
   case 24: return "Bool_Tok";
-  case 25: return "Str_Tok";
+  case 25: return "Ident_Tok";
+  case 26: return "Int_Kw";
+  case 27: return "Bool_Kw";
+  case 28: return "Var_Kw";
+  case 29: return "Semicolon_Tok";
+  case 30: return "Assign_Tok";
   default: "Invalid Token";
   }
 }

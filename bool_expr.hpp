@@ -9,8 +9,8 @@ private:
   bool value;
 
 public:
-  Bool_Expr(bool value, ASTcontext &cxt) : value(value) {
-    this->type = cxt.Bool_;
+  Bool_Expr(bool value, ASTcontext* cxt) : value(value) {
+    this->type = (*cxt).Bool_;
   }
   ~Bool_Expr() = default;
 
@@ -21,9 +21,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1; }
-  int height() override { return 0; }
-  int eval() override { return value; }
+  //int weight() override { return 1; }
+  ////int height() override { return 0; }
+  ////int eval() override { return value; }
 };
 
 // The operand of not e shall have type bool, and the type of the expression is bool.
@@ -32,9 +32,9 @@ private:
   Expr *e;
 
 public:
-  Not_Expr(Expr *e, ASTcontext &cxt) : e(e) {
-    if (e->type == cxt.Bool_)
-      this->type = cxt.Bool_;
+  Not_Expr(Expr *e, ASTcontext* cxt) : e(e) {
+    if (e->type == (*cxt).Bool_)
+      this->type = (*cxt).Bool_;
     else
       throw Type_Exception("Not_Expr");
   }
@@ -47,9 +47,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e->weight(); }
-  int height() override { return 1 + e->height(); }
-  int eval() override { return e->eval(); }
+  //int weight() override { return 1 + e->weight(); }
+  //int height() override { return 1 + e->height(); }
+  //int eval() override { return e->eval(); }
 };
 
 // The operands of e1 and e2 shall have type bool. The result type of and is bool.
@@ -58,11 +58,11 @@ private:
   Expr *e1, *e2;
 
 public:
-  And_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if (e1->type == cxt.Bool_ && e2->type == cxt.Bool_)
-      this->type = cxt.Bool_;
-    else if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-      this->type = cxt.Int_;
+  And_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
+    if (e1->type == (*cxt).Bool_ && e2->type == (*cxt).Bool_)
+      this->type = (*cxt).Bool_;
+    else if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+      this->type = (*cxt).Int_;
     else
       throw Type_Exception("And_Expr");
   }
@@ -76,9 +76,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() & e2->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval() override { return e1->eval() & e2->eval(); }
 };
 
 // The operands of e1 or e2 shall have type bool. The result type of or is bool.
@@ -87,11 +87,11 @@ private:
   Expr *e1, *e2;
 
 public:
-  Or_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if (e1->type == cxt.Bool_ && e2->type == cxt.Bool_)
-      this->type = cxt.Bool_;
-    else if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-      this->type = cxt.Int_;
+  Or_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
+    if (e1->type == (*cxt).Bool_ && e2->type == (*cxt).Bool_)
+      this->type = (*cxt).Bool_;
+    else if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+      this->type = (*cxt).Int_;
     else
       throw Type_Exception("Or_Expr");
   }
@@ -105,9 +105,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() | e2->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval() override { return e1->eval() | e2->eval(); }
 };
 
 // The operands of e1 xor e2 shall have type bool. The result type of xor is bool.
@@ -116,11 +116,11 @@ private:
   Expr *e1, *e2;
 
 public:
-  Xor_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if(e1->type == cxt.Bool_ && e2->type == cxt.Bool_)
-      this->type = cxt.Bool_;
-    else if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-      this->type = cxt.Int_;
+  Xor_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
+    if(e1->type == (*cxt).Bool_ && e2->type == (*cxt).Bool_)
+      this->type = (*cxt).Bool_;
+    else if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+      this->type = (*cxt).Int_;
     else
       throw Type_Exception("Xor_Expr");
   }
@@ -134,9 +134,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() ^ e2->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval() override { return e1->eval() ^ e2->eval(); }
 };
 
 // The operands of e1 == e2 shall have the same type. The result type of == is bool.
@@ -145,9 +145,9 @@ private:
   Expr *e1, *e2;
 
 public:
-  Eq_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
+  Eq_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
     if (e1->type == e2->type)
-      this->type = cxt.Bool_;
+      this->type = (*cxt).Bool_;
     else
       throw Type_Exception("Eq_Expr");
   }
@@ -161,9 +161,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() == e2->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval() override { return e1->eval() == e2->eval(); }
 };
 
 // The operands of e1 != e shall have the same type. The result type of != is bool.
@@ -172,9 +172,9 @@ private:
   Expr *e1, *e2;
 
 public:
-  NotEq_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
+  NotEq_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
     if (e1->type == e2->type)
-      this->type = cxt.Bool_;
+      this->type = (*cxt).Bool_;
     else
       throw Type_Exception("NotEq_Expr");
   }
@@ -187,9 +187,9 @@ public:
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
 
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() != e2->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval() override { return e1->eval() != e2->eval(); }
 };
 
 // The operands of e1 ? e2 : e3, e1 shall have type bool, e2 and e3 shall have the same type.
@@ -199,8 +199,8 @@ private:
   Expr *e1, *e2, *e3;
 
 public:
-  Cond_Expr(Expr *e1, Expr *e2, Expr *e3, ASTcontext &cxt) : e1(e1), e2(e2), e3(e3) {
-    if (e1->type == cxt.Bool_ && e2->type == e3->type)
+  Cond_Expr(Expr *e1, Expr *e2, Expr *e3, ASTcontext* cxt) : e1(e1), e2(e2), e3(e3) {
+    if (e1->type == (*cxt).Bool_ && e2->type == e3->type)
       this->type = e2->type;
     else
       throw Type_Exception("Cond_Expr");
@@ -216,9 +216,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight() + e3->weight(); }
-  int height() override { return 1 + std::max(e1->height(),std::max(e2->height(),e3->height())); }
-  int eval() override { return e1->eval() ? e2->eval() : e3->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight() + e3->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),std::max(e2->height(),e3->height())); }
+  //int eval() override { return e1->eval() ? e2->eval() : e3->eval(); }
 };
 
 // The operands of e1 AndThen e2 shall have type bool. The result type of AndThen shall have type bool.
@@ -227,9 +227,9 @@ private:
   Expr *e1, *e2;
 
 public:
-  AndThen_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if (e1->type == cxt.Bool_ && e2->type == cxt.Bool_)
-      this->type = cxt.Bool_;
+  AndThen_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
+    if (e1->type == (*cxt).Bool_ && e2->type == (*cxt).Bool_)
+      this->type = (*cxt).Bool_;
     else
       throw Type_Exception("AndThen_Expr");
   }
@@ -243,9 +243,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() ? e2->eval() : false; }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval() override { return e1->eval() ? e2->eval() : false; }
 };
 
 // The operands of e1 OrElse e2 shall have type bool. The result type of OrElse shall have type bool.
@@ -254,9 +254,9 @@ private:
   Expr *e1, *e2;
 
 public:
-  OrElse_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if (e1->type == cxt.Bool_ && e2->type == cxt.Bool_)
-      this->type = cxt.Bool_;
+  OrElse_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
+    if (e1->type == (*cxt).Bool_ && e2->type == (*cxt).Bool_)
+      this->type = (*cxt).Bool_;
     else
       throw Type_Exception("OrElse_Expr");
   }
@@ -270,8 +270,8 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() ? true : e2->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  ////int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  ////int eval() override { return e1->eval() ? true : e2->eval(); }
 };
 #endif

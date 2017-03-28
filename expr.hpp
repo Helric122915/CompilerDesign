@@ -15,9 +15,9 @@ public:
   virtual void accept(Visitor&) = 0;
 
   // Pure virtual functions to be overriden in a derived class.
-  virtual int weight() = 0;
-    virtual int height() = 0;
-  virtual int eval() = 0;
+  //virtual int weight() = 0;
+  //virtual int height() = 0;
+  //virtual int eval() = 0;
   
   const Type* getType() { return type; }
 };

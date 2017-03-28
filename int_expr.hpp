@@ -10,8 +10,8 @@ private:
   int value, rep;
 
 public:
-  Int_Expr(int value, int rep, ASTcontext &cxt) : value(value), rep(rep) {
-    this->type = cxt.Int_;
+  Int_Expr(int value, int rep, ASTcontext *cxt) : value(value), rep(rep) {
+    this->type = (*cxt).Int_;
   }
   ~Int_Expr() = default;
   
@@ -22,9 +22,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
   
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1; }
-  int height() override { return 0; }
-  int eval() override { return value; }
+  //int weight() override { return 1; }
+  //int height() override { return 0; }
+  //int eval() override { return value; }
 };
 
 // The operands of e1 + e2 shall have type int, and the type of the expression is int.
@@ -33,9 +33,9 @@ private:
   Expr *e1, *e2;
   
 public:
-  Add_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-      this->type = cxt.Int_;
+  Add_Expr(Expr *e1, Expr *e2, ASTcontext *cxt) : e1(e1), e2(e2) {
+    if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+      this->type = (*cxt).Int_;
     else
       throw Type_Exception("Add_Expr");
   }
@@ -49,11 +49,12 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
   
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval();
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval();
 };
 
+/*
 // Checks to see if the math operation works within the scale of type int.
 int Add_Expr::eval() {
   int e1Val = e1->eval();
@@ -67,7 +68,7 @@ int Add_Expr::eval() {
 	throw Overflow_Exception("Addition result too small.");
   
   return e1Val + e2Val;
-}
+}*/
 
 // The operands of e1 - e2 shall have type int, and the type of the expression is int.
 class Sub_Expr : public Expr {
@@ -75,9 +76,9 @@ private:
   Expr *e1, *e2;
 
 public:
-  Sub_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-      this->type = cxt.Int_;
+  Sub_Expr(Expr *e1, Expr *e2, ASTcontext *cxt) : e1(e1), e2(e2) {
+    if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+      this->type = (*cxt).Int_;
       else
         throw Type_Exception("Sub_Expr");
   }
@@ -91,11 +92,12 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
   
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval();
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval();
 };
 
+/*
 // Checks to see if the math operation works within the scale of type int.
 int Sub_Expr::eval() {
   int e1Val = e1->eval();
@@ -109,7 +111,7 @@ int Sub_Expr::eval() {
       throw Overflow_Exception("Subtraction result too small.");
   
   return e1Val - e2Val;
-}
+}*/
 
 // The operands of e1 * e2 shall have type int, and the type of the expression is int.
 class Mult_Expr : public Expr {
@@ -117,9 +119,9 @@ private:
   Expr *e1, *e2;
   
 public:
-  Mult_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-      this->type = cxt.Int_;
+  Mult_Expr(Expr *e1, Expr *e2, ASTcontext *cxt) : e1(e1), e2(e2) {
+    if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+      this->type = (*cxt).Int_;
     else
       throw Type_Exception("Mult_Expr");
   }
@@ -133,11 +135,12 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
   
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval();
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval();
 };
 
+/*
 // Checks to see if the math operation works within the scale of type int.
 int Mult_Expr::eval() {
   int e1Val = e1->eval();
@@ -156,7 +159,7 @@ int Mult_Expr::eval() {
 	  throw Overflow_Exception("Multiplication result too small.");
   
   return e1Val * e2Val;
-}
+}*/
 
 // The operands of e1 / e2 shall have type int, and the type of the expression is int.
 class Div_Expr : public Expr {
@@ -164,9 +167,9 @@ private:
   Expr *e1, *e2;
   
   public:
-  Div_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-      this->type = cxt.Int_;
+  Div_Expr(Expr *e1, Expr *e2, ASTcontext *cxt) : e1(e1), e2(e2) {
+    if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+      this->type = (*cxt).Int_;
     else
       throw Type_Exception("Div_Expr");
   }
@@ -179,12 +182,13 @@ private:
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
   
-    // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval();
+  // Overriding of virtual functions to access the expression.
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval();
 };
 
+/*
 // Checks to see if the math operation works within the scale of type int.
 int Div_Expr::eval() {
   int e1Val = e1->eval();
@@ -196,7 +200,7 @@ int Div_Expr::eval() {
     throw Overflow_Exception("Largest negative value is 1 larger than largest positive.");
   
   return e1Val / e2Val;
-}
+}*/
 
 // The operands of e1 & e2 shall have type int, and the type of the expression is int.
 class Mod_Expr : public Expr {
@@ -204,9 +208,9 @@ private:
   Expr *e1, *e2;
   
 public:
-  Mod_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-      if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-        this->type = cxt.Int_;
+  Mod_Expr(Expr *e1, Expr *e2, ASTcontext *cxt) : e1(e1), e2(e2) {
+      if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+        this->type = (*cxt).Int_;
       else
         throw Type_Exception("Mod_Expr");
   }
@@ -220,12 +224,13 @@ public:
     void accept(Visitor& v) { return v.visit(this); }
   
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval();
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval();
 };
 
 // Checks to see if the math operation works within the scale of type int.
+/*
 int Mod_Expr::eval() {
   int e1Val = e1->eval();
   int e2Val = e2->eval();
@@ -234,7 +239,7 @@ int Mod_Expr::eval() {
     throw Overflow_Exception("Cannot divide by zero.");
   
   return e1Val % e2Val;
-}
+  }*/
 
 // The operands of e1 < e2 shall have type int, and the type of the expression is bool.
 class LessThan_Expr : public Expr {
@@ -242,9 +247,9 @@ private:
   Expr *e1, *e2;
   
 public:
-    LessThan_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-      if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-        this->type = cxt.Bool_;
+    LessThan_Expr(Expr *e1, Expr *e2, ASTcontext *cxt) : e1(e1), e2(e2) {
+      if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+        this->type = (*cxt).Bool_;
       else
         throw Type_Exception("LessThan_Expr");
     }
@@ -258,9 +263,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
   
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() < e2->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval() override { return e1->eval() < e2->eval(); }
 };
 
 // The operands of e1 > e2 shall have type int, and the type of the expression is bool.
@@ -269,9 +274,9 @@ private:
   Expr *e1, *e2;
   
 public:
-  GreaterThan_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-      if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-        this->type = cxt.Bool_;
+  GreaterThan_Expr(Expr *e1, Expr *e2, ASTcontext *cxt) : e1(e1), e2(e2) {
+      if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+        this->type = (*cxt).Bool_;
       else
         throw Type_Exception("GreaterThan_Expr");
   }
@@ -285,9 +290,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
   
   // Overriding of virtual functions to access the expression.
-    int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() > e2->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval() override { return e1->eval() > e2->eval(); }
 };
 
 // The operands of e1 <= e2 shall have type int, and the type of the expression is bool.
@@ -296,9 +301,9 @@ private:
   Expr *e1, *e2;
 
 public:
-  LessEqThan_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-      this->type = cxt.Bool_;
+  LessEqThan_Expr(Expr *e1, Expr *e2, ASTcontext *cxt) : e1(e1), e2(e2) {
+    if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+      this->type = (*cxt).Bool_;
     else
       throw Type_Exception("LessEqThan_Expr");
   }
@@ -312,9 +317,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() <= e2->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval() override { return e1->eval() <= e2->eval(); }
 };
 
 // The operands of e1 >= e2 shall have type int, and the type of the expression is bool.
@@ -323,9 +328,9 @@ private:
   Expr *e1, *e2;
 
 public:
-  GreaterEqThan_Expr(Expr *e1, Expr *e2, ASTcontext &cxt) : e1(e1), e2(e2) {
-    if (e1->type == cxt.Int_ && e2->type == cxt.Int_)
-      this->type = cxt.Bool_;
+  GreaterEqThan_Expr(Expr *e1, Expr *e2, ASTcontext *cxt) : e1(e1), e2(e2) {
+    if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
+      this->type = (*cxt).Bool_;
     else
       throw Type_Exception("GreaterEqThan_Expr");
   }
@@ -339,9 +344,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e1->weight() + e2->weight(); }
-  int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  int eval() override { return e1->eval() >= e2->eval(); }
+  //int weight() override { return 1 + e1->weight() + e2->weight(); }
+  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
+  //int eval() override { return e1->eval() >= e2->eval(); }
 };
 
 // The operand of -e shall have type int, and the type of the expression is int.
@@ -350,9 +355,9 @@ private:
   Expr *e;
 
 public:
-  Negation_Expr(Expr *e, ASTcontext &cxt) : e(e) {
-    if (e->type == cxt.Int_)
-      this->type = cxt.Int_;
+  Negation_Expr(Expr *e, ASTcontext *cxt) : e(e) {
+    if (e->type == (*cxt).Int_)
+      this->type = (*cxt).Int_;
     else
       throw Type_Exception("Negation_Expr");
   }
@@ -365,9 +370,9 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e->weight(); }
-  int height() override { return 1 + e->height(); }
-  int eval() override { return 0 - e->eval(); }
+  //int weight() override { return 1 + e->weight(); }
+  //int height() override { return 1 + e->height(); }
+  //int eval() override { return 0 - e->eval(); }
 };
 
 // The operand of ~e shall have type int, and the type of the expression is int.
@@ -376,11 +381,11 @@ private:
   Expr *e;
 
 public:
-  OneComplement_Expr(Expr *e, ASTcontext &cxt) : e(e) {
-    if (e->type == cxt.Int_)
-      this->type = cxt.Int_;
-    else if (e->type == cxt.Bool_)
-      this->type = cxt.Bool_;
+  OneComplement_Expr(Expr *e, ASTcontext *cxt) : e(e) {
+    if (e->type == (*cxt).Int_)
+      this->type = (*cxt).Int_;
+    else if (e->type == (*cxt).Bool_)
+      this->type = (*cxt).Bool_;
     else
       throw Type_Exception("OneComplement_Expr");
   }
@@ -393,8 +398,8 @@ public:
   void accept(Visitor& v) { return v.visit(this); }
 
   // Overriding of virtual functions to access the expression.
-  int weight() override { return 1 + e->weight(); }
-  int height() override { return 1 + e->height(); }
-  int eval() override { return ~e->eval(); }
+  //int weight() override { return 1 + e->weight(); }
+  //int height() override { return 1 + e->height(); }
+  //int eval() override { return ~e->eval(); }
 };
 #endif

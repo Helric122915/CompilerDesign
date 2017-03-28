@@ -189,9 +189,9 @@ void print(Expr *e)
 
 void printInt(int value, int rep) {
   switch (rep) {
-  case 2: std::cout << convertBinary(value); break;
+  case 2: std::cout << "0b" << convertBinary(value); break;
   case 10: std::cout << value; break;
-  case 16: std::cout << std::hex << value; break;
+  case 16: std::cout << "0x" << std::hex << value; break;
   }
 }
 
@@ -204,6 +204,9 @@ std::string convertBinary(int value) {
 
     temp = floor(temp / 2);
   }
+
+  if (returnString.begin() == returnString.end())
+    returnString = "0";
 
   return returnString;
 }
