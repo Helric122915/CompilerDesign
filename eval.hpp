@@ -98,13 +98,7 @@ int eval(Expr *e)
     void visit(LessEqThan_Expr* e) { r = eval(e->getE1()) <= eval(e->getE2()); }
     void visit(GreaterEqThan_Expr* e) { r = eval(e->getE1()) >= eval(e->getE2()); }
     void visit(Negation_Expr *e) { r = 0 - eval(e->getE()); }
-    void visit(OneComplement_Expr *e) 
-    { 
-      //      if (e->getE()->getType() == (*cxt).Bool_)
-      //r = !eval(e->getE());
-	//      else if (e->getE()->getType() == (*cxt).Int_)
-      r = ~eval(e->getE()); 
-    }
+    void visit(OneComplement_Expr *e) { r = ~eval(e->getE()); }
   };
   V vis;
   e->accept(vis);

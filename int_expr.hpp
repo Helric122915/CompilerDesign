@@ -18,13 +18,9 @@ public:
   // Accessor function to retrieve the private variable value.
   int getValue() { return value; }
   int getRep() { return rep; }  
+
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-  
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1; }
-  //int height() override { return 0; }
-  //int eval() override { return value; }
 };
 
 // The operands of e1 + e2 shall have type int, and the type of the expression is int.
@@ -47,28 +43,7 @@ public:
   
     // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-  
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval();
 };
-
-/*
-// Checks to see if the math operation works within the scale of type int.
-int Add_Expr::eval() {
-  int e1Val = e1->eval();
-  int e2Val = e2->eval();
-  
-  if (e1Val > 0 && e2Val > 0)
-    if (std::numeric_limits<int>::max() -  e1Val < e2Val)
-      throw Overflow_Exception("Addition result too large.");
-    else if (e1Val < 0 && e2Val < 0)
-      if (std::numeric_limits<int>::min() - e1Val > e2Val)
-	throw Overflow_Exception("Addition result too small.");
-  
-  return e1Val + e2Val;
-}*/
 
 // The operands of e1 - e2 shall have type int, and the type of the expression is int.
 class Sub_Expr : public Expr {
@@ -90,28 +65,7 @@ public:
   
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-  
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval();
 };
-
-/*
-// Checks to see if the math operation works within the scale of type int.
-int Sub_Expr::eval() {
-  int e1Val = e1->eval();
-  int e2Val = e2->eval();
-  
-  if (e1Val > 0 && e2Val < 0)
-    if (std::numeric_limits<int>::max() - e1Val < e2Val)
-      throw Overflow_Exception("Subtraction result too large.");
-  if (e1Val < 0 && e2Val > 0)
-    if (std::numeric_limits<int>::min() - e1Val  > -e2Val)
-      throw Overflow_Exception("Subtraction result too small.");
-  
-  return e1Val - e2Val;
-}*/
 
 // The operands of e1 * e2 shall have type int, and the type of the expression is int.
 class Mult_Expr : public Expr {
@@ -133,33 +87,7 @@ public:
   
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-  
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval();
 };
-
-/*
-// Checks to see if the math operation works within the scale of type int.
-int Mult_Expr::eval() {
-  int e1Val = e1->eval();
-  int e2Val = e2->eval();
-  
-  if (e1Val == 0 || e2Val == 0)
-    return 0;
-  else if ((e1Val > 0 && e2Val > 0) || (e1Val < 0 && e2Val < 0))
-    if (std::numeric_limits<int>::max()/abs(e1Val) < abs(e2Val))
-      throw Overflow_Exception("Multiplaction result too large.");
-    else if (e1Val > 0 && e2Val < 0)
-      if (std::numeric_limits<int>::min()/e1Val > e2Val)
-	throw Overflow_Exception("Multiplication result too small.");
-      else if (e1Val < 0 && e2Val > 0)
-	if (std::numeric_limits<int>::min()/e2Val > e1Val)
-	  throw Overflow_Exception("Multiplication result too small.");
-  
-  return e1Val * e2Val;
-}*/
 
 // The operands of e1 / e2 shall have type int, and the type of the expression is int.
 class Div_Expr : public Expr {
@@ -181,26 +109,7 @@ private:
   
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-  
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval();
 };
-
-/*
-// Checks to see if the math operation works within the scale of type int.
-int Div_Expr::eval() {
-  int e1Val = e1->eval();
-  int e2Val = e2->eval();
-  
-  if (e2Val == 0)
-    throw Overflow_Exception("Cannot divide by zero.");
-  else if (e1Val == std::numeric_limits<int>::min() && e2Val == -1)
-    throw Overflow_Exception("Largest negative value is 1 larger than largest positive.");
-  
-  return e1Val / e2Val;
-}*/
 
 // The operands of e1 & e2 shall have type int, and the type of the expression is int.
 class Mod_Expr : public Expr {
@@ -222,24 +131,7 @@ public:
   
   // Overriding of accept virtual function to accept visitors.
     void accept(Visitor& v) { return v.visit(this); }
-  
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval();
 };
-
-// Checks to see if the math operation works within the scale of type int.
-/*
-int Mod_Expr::eval() {
-  int e1Val = e1->eval();
-  int e2Val = e2->eval();
-  
-  if (e2Val == 0)
-    throw Overflow_Exception("Cannot divide by zero.");
-  
-  return e1Val % e2Val;
-  }*/
 
 // The operands of e1 < e2 shall have type int, and the type of the expression is bool.
 class LessThan_Expr : public Expr {
@@ -261,11 +153,6 @@ public:
   
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-  
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval() override { return e1->eval() < e2->eval(); }
 };
 
 // The operands of e1 > e2 shall have type int, and the type of the expression is bool.
@@ -288,11 +175,6 @@ public:
   
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-  
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval() override { return e1->eval() > e2->eval(); }
 };
 
 // The operands of e1 <= e2 shall have type int, and the type of the expression is bool.
@@ -315,11 +197,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval() override { return e1->eval() <= e2->eval(); }
 };
 
 // The operands of e1 >= e2 shall have type int, and the type of the expression is bool.
@@ -342,11 +219,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval() override { return e1->eval() >= e2->eval(); }
 };
 
 // The operand of -e shall have type int, and the type of the expression is int.
@@ -368,11 +240,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e->weight(); }
-  //int height() override { return 1 + e->height(); }
-  //int eval() override { return 0 - e->eval(); }
 };
 
 // The operand of ~e shall have type int, and the type of the expression is int.
@@ -396,10 +263,5 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e->weight(); }
-  //int height() override { return 1 + e->height(); }
-  //int eval() override { return ~e->eval(); }
 };
 #endif

@@ -19,11 +19,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1; }
-  ////int height() override { return 0; }
-  ////int eval() override { return value; }
 };
 
 // The operand of not e shall have type bool, and the type of the expression is bool.
@@ -45,11 +40,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e->weight(); }
-  //int height() override { return 1 + e->height(); }
-  //int eval() override { return e->eval(); }
 };
 
 // The operands of e1 and e2 shall have type bool. The result type of and is bool.
@@ -74,11 +64,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval() override { return e1->eval() & e2->eval(); }
 };
 
 // The operands of e1 or e2 shall have type bool. The result type of or is bool.
@@ -103,11 +88,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval() override { return e1->eval() | e2->eval(); }
 };
 
 // The operands of e1 xor e2 shall have type bool. The result type of xor is bool.
@@ -132,11 +112,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval() override { return e1->eval() ^ e2->eval(); }
 };
 
 // The operands of e1 == e2 shall have the same type. The result type of == is bool.
@@ -159,11 +134,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval() override { return e1->eval() == e2->eval(); }
 };
 
 // The operands of e1 != e shall have the same type. The result type of != is bool.
@@ -186,10 +156,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval() override { return e1->eval() != e2->eval(); }
 };
 
 // The operands of e1 ? e2 : e3, e1 shall have type bool, e2 and e3 shall have the same type.
@@ -214,11 +180,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight() + e3->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),std::max(e2->height(),e3->height())); }
-  //int eval() override { return e1->eval() ? e2->eval() : e3->eval(); }
 };
 
 // The operands of e1 AndThen e2 shall have type bool. The result type of AndThen shall have type bool.
@@ -241,11 +202,6 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  //int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  //int eval() override { return e1->eval() ? e2->eval() : false; }
 };
 
 // The operands of e1 OrElse e2 shall have type bool. The result type of OrElse shall have type bool.
@@ -268,10 +224,5 @@ public:
 
   // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
-
-  // Overriding of virtual functions to access the expression.
-  //int weight() override { return 1 + e1->weight() + e2->weight(); }
-  ////int height() override { return 1 + std::max(e1->height(),e2->height()); }
-  ////int eval() override { return e1->eval() ? true : e2->eval(); }
 };
 #endif
