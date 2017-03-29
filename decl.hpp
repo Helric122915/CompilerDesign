@@ -1,12 +1,8 @@
 #ifndef DECL_HPP
 #define DECL_HPP
 
-#include "symbol.hpp"
-#include <vector>
-
 class Type;
 class Expr;
-//class Stmt;
 
 class Decl {
 public:

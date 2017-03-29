@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 	  if (commentIndex != std::string::npos)
 	    std::cout << "Comment: " << comment << '\n';
 	    
-	  //std::cout << "Lexing Line: " << input << '\n';
+	  std::cout << "Lexing Line: " << input << '\n';
 	    
 	  Lexer *lexe = new Lexer(input.begin(),input.end(),outputTypeInt, cxt);
 
