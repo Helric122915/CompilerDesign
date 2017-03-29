@@ -1,6 +1,5 @@
 # This is a test file to test input redirection
-5 + 7 == 10
-11 * 17 != 27
-22 % 37
-true && false
-/ ^ () <= < > >=
+var int x = 27 * 3 + 4 / 2; # Assigns the computed value to x
+var int y = 73;
+var int z = x - y;
+var bool a = x > y;
