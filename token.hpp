@@ -35,11 +35,13 @@ enum Token_Kind {
   Int_Tok,
   Bool_Tok,
   Ident_Tok,
+  Semicolon_Tok,
+  Assign_Tok,
+
+  // Keyword Tokens
   Int_Kw,
   Bool_Kw,
-  Var_Kw,
-  Semicolon_Tok,
-  Assign_Tok
+  Var_Kw
 };
 
 class Token {
@@ -163,11 +165,11 @@ std::string printName(int name) {
   case 23: return "Int_Tok";
   case 24: return "Bool_Tok";
   case 25: return "Ident_Tok";
-  case 26: return "Int_Kw";
-  case 27: return "Bool_Kw";
-  case 28: return "Var_Kw";
-  case 29: return "Semicolon_Tok";
-  case 30: return "Assign_Tok";
+  case 26: return "Semicolon_Tok";
+  case 27: return "Assign_Tok";
+  case 28: return "Int_Kw";
+  case 29: return "Bool_Kw";
+  case 30: return "Var_Kw";
   default: "Invalid Token";
   }
 }

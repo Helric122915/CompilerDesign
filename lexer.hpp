@@ -146,6 +146,7 @@ Token* Lexer::next() {
   return nullptr;
 }
 
+// Lexes an integer based on its representation.
 Token* Lexer::lexeInt(char rep) {
   if (rep == 'd') {
     while (!eof() && std::isdigit(lookahead())) {
@@ -171,12 +172,14 @@ Token* Lexer::lexeInt(char rep) {
     throw Token_Exception("Unexpected Integer Type");
 }
 
+// Checks if the current character is a hex value.
 bool Lexer::isHex() {
   return std::isdigit(lookahead()) || tolower(lookahead()) == 'a' || tolower(lookahead()) == 'b' 
     || tolower(lookahead()) == 'c' || tolower(lookahead()) == 'd' || tolower(lookahead()) == 'e' 
     || tolower(lookahead()) == 'f';
 }
 
+// Lexes an identifier and determines if it is a keyword or a symbol.
 Token* Lexer::lexeIdentifier() {
   buffer();
   while (std::isdigit(lookahead()) || std::isalpha(lookahead()) || lookahead() == '_') {
@@ -193,6 +196,7 @@ Token* Lexer::lexeIdentifier() {
   return tok;
 }
 
+// Decides if the integer value is decimal, binary or hexadecimal.
 Token* Lexer::decideType() {
   buffer();
   if (lookahead() == 'x') {

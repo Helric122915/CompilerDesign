@@ -45,11 +45,12 @@ public:
 
   Token* checkKeywords(std::string);
   Token* insertSymbol(std::string);
-  bool insertDecl(Decl*);
   Decl* retrieveSymbol(std::string);
+  bool insertDecl(Decl*);
 };
 
 ASTcontext::ASTcontext() {
+  // Base set of keywords for this language.
   Keywords.insert({"var", new Ident_Token(Var_Kw)});
   Keywords.insert({"int", new Ident_Token(Int_Kw)});
   Keywords.insert({"bool", new Ident_Token(Bool_Kw)});
@@ -57,6 +58,8 @@ ASTcontext::ASTcontext() {
   Keywords.insert({"false", new Bool_Token(false)});
 }
 
+// Checks if the identifier is stored within the keyword list.
+// If it is, return the token associated with that keyword.
 Token* ASTcontext::checkKeywords(std::string identifier) {
   auto iter = Keywords.find(identifier);
   if (iter == Keywords.end())
@@ -65,6 +68,8 @@ Token* ASTcontext::checkKeywords(std::string identifier) {
     return iter->second;
 }
 
+// Checks if the Symbol is in the Symbol Table. If so it, it returns a token with the proper value.
+// If not one is created with the proper value.
 Token* ASTcontext::insertSymbol(std::string identifier) {
   Ident_Token* tok = new Ident_Token(Ident_Tok);
 
@@ -81,6 +86,16 @@ Token* ASTcontext::insertSymbol(std::string identifier) {
   }
 }
 
+// Returns the decl associated with a given identifier if it exists.
+Decl* ASTcontext::retrieveSymbol(std::string identifier) {
+  auto iter = SymTab.find(identifier);
+  if (iter != SymTab.end())
+    return iter->second;
+
+  return nullptr;
+}
+
+// Takes a decl and stores it with a given identifier if it exits.
 bool ASTcontext::insertDecl(Decl* dec) {
   auto iter = SymTab.find(dynamic_cast<Var_Decl*>(dec)->getName());
   if (iter != SymTab.end()) {
@@ -89,13 +104,5 @@ bool ASTcontext::insertDecl(Decl* dec) {
   }
   else
     return false;
-}
-
-Decl* ASTcontext::retrieveSymbol(std::string identifier) {
-  auto iter = SymTab.find(identifier);
-  if (iter != SymTab.end())
-    return iter->second;
-
-  return nullptr;
 }
 #endif

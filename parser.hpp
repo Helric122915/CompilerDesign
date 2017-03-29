@@ -18,7 +18,7 @@ private:
   bool eof() const { return it == tokens.end(); }
   Token* lookahead() const { return (eof() ? new Punct_Token(Eof_Tok) : *it); }
   Token* consume();
-  Token* match(Token_Kind k);
+  Token* require(Token_Kind k);
   bool match_if(Token_Kind k);
   bool match_if(Token_Kind k, Token*&);
   Stmt* statement();
@@ -47,23 +47,25 @@ public:
   Parser(std::vector<Token*> tokens, int repOut, ASTcontext* cxt) : tokens(tokens), numberRepOut(repOut), cxt(cxt) { it = this->tokens.begin(); }
   ~Parser() = default;
 
-  //Expr* next() { return parseExpr(); }
   Stmt* next() { return statement(); }
 };
 
+// Returns the token that is consumed and advances the iterator.
 Token* Parser::consume() {
   Token* tok = lookahead();
   ++it;
   return tok;
 }
 
-Token* Parser::match(Token_Kind k) {
+// Attempts to match to a specific Token_Kind and if it fails throws an exception.
+Token* Parser::require(Token_Kind k) {
   if (lookahead()->name == k)
     return consume();
   else
-    throw Syntax_Exception("Expected: " + printName(k));
+    throw Syntax_Exception("Expected a token of type " + printName(k));
 }
 
+// Attempts to match to a specific Token_Kind and returns false if it fails.
 bool Parser::match_if(Token_Kind k) {
   if (lookahead()->name == k) {
     consume();
@@ -73,6 +75,8 @@ bool Parser::match_if(Token_Kind k) {
     return false;
 }
 
+// Does the same as the other match_if but accepts a Token* by reference that can be used
+// outside the function.
 bool Parser::match_if(Token_Kind k, Token* & val) {
   if (lookahead()->name == k) {
     val = lookahead();
@@ -93,36 +97,43 @@ Stmt* Parser::statement() {
 }
 
 Stmt* Parser::declaration_statement() {
-  Decl* dec = declaration();
-  return new Decl_Stmt(dec);
+  //Decl* dec = declaration();
+  return new Decl_Stmt(declaration());
 }
 
 Stmt* Parser::expression_statement() {
   Expr* exp = parseExpr();
+  // Currently using match_if, change to require once Semicolons are required.
   match_if(Semicolon_Tok);
   return new Expr_Stmt(exp);
 }
 
 Decl* Parser::declaration() {
-  match(Var_Kw);
+  require(Var_Kw);
   return variable_declaration();
 }
 
 Decl* Parser::variable_declaration() {
+  // Retrieves the specified type and identifier.
   const Type* t = type_specifier();
   const std::string id = identifier();
 
+  // If the decl already exists in the Symbol Table that means it is already in the table and
+  // can't be re-declared.
   if (Decl* dec = (*cxt).retrieveSymbol(id))
       throw Semantic_Exception("Variable " + id + " is already defined.");
   
+  // Create a new decl that will be stored with the identifier in the Symbol Table.
   Var_Decl* dec = new Var_Decl(id);
   dec->type = t;
-  match(Assign_Tok);
+  require(Assign_Tok);
   Expr* expr = parseExpr();
 
+  // Throw an exception if the specified type doesn't match the associated expr type.
   if (t != expr->getType())
     throw Type_Exception("Type does not match declaration");
 
+  // Pre-evaluates the expr to only have to store either an int or bool expr in the decl.
   if (t == (*cxt).Int_)
     expr = new Int_Expr(eval(expr), numberRepOut, cxt);
   else if (t == (*cxt).Bool_)
@@ -130,8 +141,10 @@ Decl* Parser::variable_declaration() {
 
   dec->init = expr;
 
+  // Stores the decl into Symbol Table with the same identifier.
   (*cxt).insertDecl(dec);
 
+  // Currently using match_if, change to require once Semicolons are required.
   match_if(Semicolon_Tok);
   return dec;
 }
@@ -156,8 +169,6 @@ Expr* Parser::parseExpr() {
 }
 
 Expr* Parser::parseCondExpr() {
-  //std::cout << "Parsing Cond\n";
-
   Expr* t1 = parseLogicOrExpr();
 
   while (true) {
@@ -169,13 +180,10 @@ Expr* Parser::parseCondExpr() {
     else
       break;
   }
-
   return t1;
 }
 
 Expr* Parser::parseLogicOrExpr() {
-  //std::cout << "Parsing Logic Or\n";
-
   Expr* t1 = parseLogicAndExpr();
 
   while (true) {
@@ -184,13 +192,10 @@ Expr* Parser::parseLogicOrExpr() {
     else
       break;
   }
-
   return t1;
 }
 
 Expr* Parser::parseLogicAndExpr() {
-  //std::cout << "Parsing Logic And\n";
-
   Expr* t1 = parseBitWiseOrExpr();
 
   while (true) {
@@ -199,7 +204,6 @@ Expr* Parser::parseLogicAndExpr() {
     else
       break;
   }
-  
   return t1;
 }
 
@@ -212,7 +216,6 @@ Expr* Parser::parseBitWiseOrExpr() {
     else
       break;
   }
-
   return t1;
 }
 
@@ -225,7 +228,6 @@ Expr* Parser::parseBitWiseXorExpr() {
     else
       break;
   }
-
   return t1;
 }
 
@@ -238,13 +240,10 @@ Expr* Parser::parseBitWiseAndExpr() {
     else
       break;
   }
-
   return t1;
 }
 
 Expr* Parser::parseEqualExpr() {
-  //std::cout << "Parsing Equal\n";
-
   Expr* t1 = parseOrderExpr();
 
   while (true) {
@@ -255,13 +254,10 @@ Expr* Parser::parseEqualExpr() {
     else
       break;
   }
-  
   return t1;
 }
 
 Expr* Parser::parseOrderExpr() {
-  //std::cout << "Parsing Order\n";
-
   Expr* t1 = parseAddExpr();
 
   while (true) {
@@ -276,13 +272,10 @@ Expr* Parser::parseOrderExpr() {
     else
       break;
   }
-  
   return t1;
 }
 
 Expr* Parser::parseAddExpr() {
-  //std::cout << "Parsing Add\n";
-
   Expr* t1 = parseMultExpr();
 
   while (true) {
@@ -293,13 +286,10 @@ Expr* Parser::parseAddExpr() {
     else
       break;
   }
-  
   return t1;
 }
 
 Expr* Parser::parseMultExpr() {
-  //std::cout << "Parsing Mult\n";
-
   Expr* t1 = parseUnaryExpr();
 
   while (true) {
@@ -312,13 +302,10 @@ Expr* Parser::parseMultExpr() {
     else
       break;
   }
-  
   return t1;
 }
 
 Expr* Parser::parseUnaryExpr() {
-  //std::cout << "Parsing Unary\n";
-
   if (match_if(Minus_Tok))
     return new Negation_Expr(parseUnaryExpr(), cxt);
   else if (match_if(OneComplement_Tok))
@@ -341,43 +328,44 @@ Expr* Parser::parsePrimaryExpr() {
   else if (match_if(LParens_Tok)) {
     Expr* expr = parseExpr();
 
-    if (!match_if(RParens_Tok))
-      throw Syntax_Exception("Missing Expected Closing Paren");
-    else
-      return expr;
+    require(RParens_Tok);
+    return expr;
   }
   else if (match_if(Ident_Tok, temp)) {
     std::string variable = *dynamic_cast<Ident_Token*>(temp)->value;
-    Var_Decl* dec = dynamic_cast<Var_Decl*>((*cxt).retrieveSymbol(variable));//*dynamic_cast<Ident_Token*>(temp)->value));
 
+    // Checks to see if the variable exists in the Symbol Table.
+    Var_Decl* dec = dynamic_cast<Var_Decl*>((*cxt).retrieveSymbol(variable));
+
+    // If the variable doesn't exist throw an exception.
     if (!dec)
       throw Semantic_Exception("Variable " + variable + " has not been defined.");
 
+    // If an assignment operator is next then the variable is having its decl updated, otherwise
+    // just return the init expr.
     if (match_if(Assign_Tok)) {
       Expr* expr = parseExpr();
 
+      // Pre-evaluates the expr as an int or bool expr before it is stored within the decl.
       if (expr->getType() == (*cxt).Int_)
 	expr = new Int_Expr(eval(expr), numberRepOut, cxt);
       else if (expr->getType() == (*cxt).Bool_)
 	expr = new Bool_Expr(eval(expr), cxt);
 
+      // Updates the expr stored within the decl.
       dec->init = expr;
       (*cxt).insertDecl(dec);
 
       return expr;
     }
-
-    if (dec)
-      return dec->init;
-    else
-      throw Semantic_Exception("Variable " + variable + " has no definition");
+    return dec->init;
   }
   else
     throw Syntax_Exception("Expecting Primary Expression");
 }
 
 const std::string Parser::identifier() {
-  Token* id = match(Ident_Tok);
+  Token* id = require(Ident_Tok);
   return *dynamic_cast<Ident_Token*>(id)->value;
 }
 #endif
