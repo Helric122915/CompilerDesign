@@ -7,20 +7,23 @@
 class Expr {
 public:
   class Visitor;
-  const Type *type;
+  //const Type *type;
+  Type *type;
 
   virtual ~Expr() = default;
   
   // Accept visitor function that allows a visitor to interact with an expression.
   virtual void accept(Visitor&) = 0;
 
-  const Type* getType() { return type; }
+  //const Type* getType() { return type; }
+  Type* getType() { return type; }
 };
 
 // Based Visitor Class in the Expr class that will be inherited in each visitor function implementation.
 class Expr::Visitor {
 public:
   virtual ~Visitor() = default;
+  virtual void visit(Value_Expr*) = 0;
   virtual void visit(Bool_Expr*) = 0;
   virtual void visit(And_Expr*) = 0;
   virtual void visit(Or_Expr*) = 0;
@@ -44,5 +47,18 @@ public:
   virtual void visit(GreaterEqThan_Expr*) = 0;
   virtual void visit(Negation_Expr*) = 0;
   virtual void visit(OneComplement_Expr*) = 0;
+};
+
+class Value_Expr : public Expr {
+private:
+  Expr* e;
+
+public:
+  Value_Expr(Expr* e, Type* t) : e(e) { this->type = t; }
+
+  Expr* getE() { return e; }
+
+  // Overriding of accept virtual function to accept visitors.
+  void accept(Visitor& v) { return v.visit(this); }
 };
 #endif

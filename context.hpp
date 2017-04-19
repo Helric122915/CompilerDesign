@@ -1,10 +1,12 @@
 #ifndef CONTEXT_HPP
 #define CONTEXT_HPP
 
-#include "type.hpp"
 #include "token.hpp"
 #include "decl.hpp"
+#include "type.hpp"
 
+class Semantic;
+class Value_Expr;
 // Bool Expressions
 class Bool_Expr;
 class And_Expr;
@@ -35,8 +37,10 @@ class OneComplement_Expr;
 // program.
 class ASTcontext {
 public:
-  const Bool_Type* Bool_ = new Bool_Type();
-  const Int_Type* Int_ = new Int_Type();
+  //const Bool_Type* Bool_ = new Bool_Type();
+  //const Int_Type* Int_ = new Int_Type();
+  Bool_Type* Bool_ = new Bool_Type();
+  Int_Type* Int_ = new Int_Type();
   std::unordered_map<std::string, Token*> Keywords;
   std::unordered_map<std::string, Decl*> SymTab;
 
@@ -54,6 +58,13 @@ ASTcontext::ASTcontext() {
   Keywords.insert({"var", new Ident_Token(Var_Kw)});
   Keywords.insert({"int", new Ident_Token(Int_Kw)});
   Keywords.insert({"bool", new Ident_Token(Bool_Kw)});
+  Keywords.insert({"for", new Ident_Token(For_Kw)});
+  Keywords.insert({"if", new Ident_Token(If_Kw)});
+  Keywords.insert({"else", new Ident_Token(Else_Kw)});
+  Keywords.insert({"while", new Ident_Token(While_Kw)});
+  Keywords.insert({"break", new Ident_Token(Break_Kw)});
+  Keywords.insert({"continue", new Ident_Token(Continue_Kw)});
+  Keywords.insert({"return", new Ident_Token(Return_Kw)});
   Keywords.insert({"true", new Bool_Token(true)});
   Keywords.insert({"false", new Bool_Token(false)});
 }

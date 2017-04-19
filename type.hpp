@@ -18,4 +18,11 @@ class Type {
 // Declares the two specific types Bool and Int to be used for expressions.
 class Bool_Type : public Type {};
 class Int_Type : public Type {};
+// Not sure how to use
+class Ref_Type : public Type {
+public:
+  Ref_Type(Type* t) : obj(t) {}
+
+  Type* obj;
+};
 #endif

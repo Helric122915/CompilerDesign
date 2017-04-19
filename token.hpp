@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <math.h>
 
 void printIntLexer(int,int);
 std::string convertBinaryLexer(int);
@@ -37,11 +38,21 @@ enum Token_Kind {
   Ident_Tok,
   Semicolon_Tok,
   Assign_Tok,
+  LBrace_Tok,
+  RBrace_Tok,
+  Arrow_Tok,
 
   // Keyword Tokens
   Int_Kw,
   Bool_Kw,
-  Var_Kw
+  Var_Kw,
+  For_Kw,
+  If_Kw,
+  Else_Kw,
+  While_Kw,
+  Break_Kw,
+  Continue_Kw,
+  Return_Kw
 };
 
 class Token {
@@ -139,37 +150,47 @@ std::string convertBinaryLexer(int value) {
 
 std::string printName(int name) {
   switch(name) {
-  case 0: return "Eof_Tok";
-  case 1: return "Eq_Tok";
-  case 2: return "NotEq_Tok";
-  case 3: return "LParens_Tok";
-  case 4: return "RParens_Tok";
-  case 5: return "LessThan_Tok";
-  case 6: return "LessEqThan_Tok";
-  case 7: return "GreaterThan_Tok";
-  case 8: return "GreaterEqThan_Tok";
-  case 9: return "Plus_Tok";
-  case 10: return "Minus_Tok";
-  case 11: return "Mult_Tok";
-  case 12: return "Div_Tok";
-  case 13: return "Mod_Tok";
-  case 14: return "Not_Tok";
-  case 15: return "Or_Tok";
-  case 16: return "OrElse_Tok";
-  case 17: return "And_Tok";
-  case 18: return "AndThen_Tok";
-  case 19: return "Xor_Tok";
-  case 20: return "OneComplement_Tok";
-  case 21: return "QuestionMark_Tok";
-  case 22: return "Colon_Tok";
-  case 23: return "Int_Tok";
-  case 24: return "Bool_Tok";
-  case 25: return "Ident_Tok";
-  case 26: return "Semicolon_Tok";
-  case 27: return "Assign_Tok";
-  case 28: return "Int_Kw";
-  case 29: return "Bool_Kw";
-  case 30: return "Var_Kw";
+  case Eof_Tok: return "Eof_Tok";
+  case Eq_Tok: return "Eq_Tok";
+  case NotEq_Tok: return "NotEq_Tok";
+  case LParens_Tok: return "LParens_Tok";
+  case RParens_Tok: return "RParens_Tok";
+  case LessThan_Tok: return "LessThan_Tok";
+  case LessEqThan_Tok: return "LessEqThan_Tok";
+  case GreaterThan_Tok: return "GreaterThan_Tok";
+  case GreaterEqThan_Tok: return "GreaterEqThan_Tok";
+  case Plus_Tok: return "Plus_Tok";
+  case Minus_Tok: return "Minus_Tok";
+  case Mult_Tok: return "Mult_Tok";
+  case Div_Tok: return "Div_Tok";
+  case Mod_Tok: return "Mod_Tok";
+  case Not_Tok: return "Not_Tok";
+  case Or_Tok: return "Or_Tok";
+  case OrElse_Tok: return "OrElse_Tok";
+  case And_Tok: return "And_Tok";
+  case AndThen_Tok: return "AndThen_Tok";
+  case Xor_Tok: return "Xor_Tok";
+  case OneComplement_Tok: return "OneComplement_Tok";
+  case QuestionMark_Tok: return "QuestionMark_Tok";
+  case Colon_Tok: return "Colon_Tok";
+  case Int_Tok: return "Int_Tok";
+  case Bool_Tok: return "Bool_Tok";
+  case Ident_Tok: return "Ident_Tok";
+  case Semicolon_Tok: return "Semicolon_Tok";
+  case Assign_Tok: return "Assign_Tok";
+  case LBrace_Tok: return "LBrace_Tok";
+  case RBrace_Tok: return "RBrace_Tok";
+  case Arrow_Tok: return "Arrow_Tok";
+  case Int_Kw: return "Int_Kw";
+  case Bool_Kw: return "Bool_Kw";
+  case Var_Kw: return "Var_Kw";
+  case For_Kw: return "For_Kw";
+  case If_Kw: return "If_Kw";
+  case Else_Kw: return "Else_Kw";
+  case While_Kw: return "While_Kw";
+  case Break_Kw: return "Break_Kw";
+  case Continue_Kw: return "Continue_Kw";
+  case Return_Kw: return "Return_Kw";
   default: "Invalid Token";
   }
 }

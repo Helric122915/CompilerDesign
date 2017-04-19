@@ -41,7 +41,7 @@ public:
   Expr* getE1() { return e1; }
   Expr* getE2() { return e2; }
   
-    // Overriding of accept virtual function to accept visitors.
+  // Overriding of accept virtual function to accept visitors.
   void accept(Visitor& v) { return v.visit(this); }
 };
 

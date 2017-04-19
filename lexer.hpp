@@ -52,6 +52,12 @@ Token* Lexer::next() {
     }
     case ')': { consume();
 	return new Punct_Token(RParens_Tok);
+    }    
+    case '{': { consume();
+	return new Punct_Token(LBrace_Tok);
+    }
+    case '}': { consume();
+	return new Punct_Token(RBrace_Tok);
     }
     case '?': { consume();
         return new Punct_Token(QuestionMark_Tok);
@@ -77,6 +83,10 @@ Token* Lexer::next() {
         return new Punct_Token(Plus_Tok);
     }
     case '-': { consume();
+	if (lookahead() == '>') {
+	  consume();
+	  return new Punct_Token(Arrow_Tok);
+	}
         return new Punct_Token(Minus_Tok);
     }
     case '*': { consume();
@@ -123,15 +133,7 @@ Token* Lexer::next() {
 	return new Punct_Token(OneComplement_Tok);
     }
     case '0': return decideType();
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9': return lexeInt('d'); 
+    case '1' ... '9': return lexeInt('d');
     case '_':
     case 'a' ... 'z': return lexeIdentifier();
     case ' ': 

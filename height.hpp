@@ -17,6 +17,7 @@ int height(Expr *e)
     int getR() { return r; }
 
     // Overriding of each visit virtual function set to the desired functionality of each expression.
+    void visit(Value_Expr* e) { r = 1 + height(e->getE()); }
     void visit(Bool_Expr* e) { r = 1; }
     void visit(And_Expr* e) { r = 1 + std::max(height(e->getE1()),height(e->getE2())); }
     void visit(Or_Expr* e) { r = 1 + std::max(height(e->getE1()),height(e->getE2())); }

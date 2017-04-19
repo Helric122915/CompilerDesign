@@ -2,11 +2,9 @@
 #define PARSER_HPP
 
 #include <vector>
-#include "int_expr.hpp"
-#include "bool_expr.hpp"
 #include "eval.hpp"
 #include "token.hpp"
-#include "stmt.hpp"
+#include "semantics.hpp"
 
 class Parser {
 private:
@@ -14,6 +12,7 @@ private:
   std::vector<Token*>::iterator it;
   int numberRepOut;
   ASTcontext* cxt;
+  Semantic* sema;
 
   bool eof() const { return it == tokens.end(); }
   Token* lookahead() const { return (eof() ? new Punct_Token(Eof_Tok) : *it); }
@@ -22,6 +21,13 @@ private:
   bool match_if(Token_Kind k);
   bool match_if(Token_Kind k, Token*&);
   Stmt* statement();
+  std::vector<Stmt*> statement_seq();
+  Stmt* block_statement();
+  Stmt* if_statement();
+  Stmt* while_statement();
+  Stmt* break_statement();
+  Stmt* continue_statement();
+  Stmt* return_statement();
   Stmt* declaration_statement();
   Stmt* expression_statement();
   Decl* declaration();
@@ -44,7 +50,7 @@ private:
   const std::string identifier();
 
 public:
-  Parser(std::vector<Token*> tokens, int repOut, ASTcontext* cxt) : tokens(tokens), numberRepOut(repOut), cxt(cxt) { it = this->tokens.begin(); }
+  Parser(std::vector<Token*> tokens, int repOut, ASTcontext* cxt) : tokens(tokens), numberRepOut(repOut), cxt(cxt) { it = this->tokens.begin(); sema = new Semantic(cxt); }
   ~Parser() = default;
 
   Stmt* next() { return statement(); }
@@ -89,11 +95,85 @@ bool Parser::match_if(Token_Kind k, Token* & val) {
 
 Stmt* Parser::statement() {
   switch (lookahead()->name) {
+  case LBrace_Tok:
+    return block_statement();
+  case If_Kw:
+    return if_statement();
+  case While_Kw:
+    return while_statement();
+  case Break_Kw:
+    return break_statement();
+  case Continue_Kw:
+    return continue_statement();
+  case Return_Kw:
+    return return_statement();
   case Var_Kw:
     return declaration_statement();
   default:
     return expression_statement();
   }
+}
+
+std::vector<Stmt*> Parser::statement_seq() {
+  std::vector<Stmt*> stmtSeq;
+
+  while (lookahead()->name != RBrace_Tok) {
+    Stmt* s = statement();
+    stmtSeq.push_back(s);
+  }
+  return stmtSeq;
+}
+
+Stmt* Parser::block_statement() {
+  // add declarative region
+
+  require(LBrace_Tok);
+  std::vector<Stmt*> stmtSeq;
+  if (lookahead()->name != RBrace_Tok)
+    stmtSeq = statement_seq();
+  match_if(RBrace_Tok);  
+  return sema->block_statement(std::move(stmtSeq));
+}
+
+Stmt* Parser::if_statement() {
+  require(If_Kw);
+  match_if(LParens_Tok);
+  Expr* e = parseExpr();
+  match_if(RParens_Tok);
+  Stmt* trueBlock = statement();
+  match_if(Else_Kw);
+  Stmt* falseBlock = statement();
+  return sema->if_statement(e, trueBlock, falseBlock);
+}
+
+Stmt* Parser::while_statement() {
+  require(While_Kw);
+  match_if(LParens_Tok);
+  Expr* e = parseExpr();
+  match_if(RParens_Tok);
+  Stmt* l = sema->while_init(e);
+  Stmt* s = statement();
+  return sema->while_complete(l, s);
+}
+
+Stmt* Parser::break_statement() {
+  require(Break_Kw);
+  return sema->break_statement();
+}
+
+Stmt* Parser::continue_statement() {
+  require(Continue_Kw);
+  return sema->continue_statement();
+}
+
+Stmt* Parser::return_statement() {
+  require(Return_Kw);
+  // only used for void I believe
+  //if (match_if(Semicolon_Tok))
+  //  return new Return_Stmt();
+  Expr* e = parseExpr();
+  match_if(Semicolon_Tok);
+  return sema->return_statement(e);
 }
 
 Stmt* Parser::declaration_statement() {
@@ -103,8 +183,7 @@ Stmt* Parser::declaration_statement() {
 
 Stmt* Parser::expression_statement() {
   Expr* exp = parseExpr();
-  // Currently using match_if, change to require once Semicolons are required.
-  match_if(Semicolon_Tok);
+  require(Semicolon_Tok);
   return new Expr_Stmt(exp);
 }
 
@@ -144,8 +223,7 @@ Decl* Parser::variable_declaration() {
   // Stores the decl into Symbol Table with the same identifier.
   (*cxt).insertDecl(dec);
 
-  // Currently using match_if, change to require once Semicolons are required.
-  match_if(Semicolon_Tok);
+  require(Semicolon_Tok);
   return dec;
 }
 
@@ -175,7 +253,7 @@ Expr* Parser::parseCondExpr() {
     if (match_if(QuestionMark_Tok)) {
       Expr* t2 = parseExpr();
       if (match_if(Colon_Tok))
-	t1 = new Cond_Expr(t1,t2, parseExpr(), cxt);
+	t1 = sema->condition_expression(t1, t2, parseExpr());
     }
     else
       break;
@@ -188,7 +266,7 @@ Expr* Parser::parseLogicOrExpr() {
 
   while (true) {
     if (match_if(OrElse_Tok))
-      t1 = new OrElse_Expr(t1, parseLogicAndExpr(), cxt);
+      t1 = sema->logical_or_expression(t1, parseLogicAndExpr());
     else
       break;
   }
@@ -200,7 +278,7 @@ Expr* Parser::parseLogicAndExpr() {
 
   while (true) {
     if (match_if(AndThen_Tok))
-      t1 = new AndThen_Expr(t1, parseBitWiseOrExpr(), cxt);
+      t1 = sema->logical_and_expression(t1, parseBitWiseOrExpr());
     else
       break;
   }
@@ -212,7 +290,7 @@ Expr* Parser::parseBitWiseOrExpr() {
 
   while (true) {
     if (match_if(Or_Tok))
-      t1 = new Or_Expr(t1, parseBitWiseXorExpr(), cxt);
+      t1 = sema->or_expression(t1, parseBitWiseXorExpr());
     else
       break;
   }
@@ -224,7 +302,7 @@ Expr* Parser::parseBitWiseXorExpr() {
 
   while (true) {
     if (match_if(Xor_Tok))
-      t1 = new Xor_Expr(t1, parseBitWiseAndExpr(), cxt);
+      t1 = sema->xor_expression(t1, parseBitWiseAndExpr());
     else
       break;
   }
@@ -236,7 +314,7 @@ Expr* Parser::parseBitWiseAndExpr() {
 
   while (true) {
     if (match_if(And_Tok))
-      t1 = new And_Expr(t1, parseEqualExpr(), cxt);
+      t1 = sema->and_expression(t1, parseEqualExpr());
     else
       break;
   }
@@ -248,9 +326,9 @@ Expr* Parser::parseEqualExpr() {
 
   while (true) {
     if (match_if(Eq_Tok))
-      t1 = new Eq_Expr(t1, parseOrderExpr(), cxt);
+      t1 = sema->equal_expression(t1, parseOrderExpr());
     else if (match_if(NotEq_Tok))
-      t1 = new NotEq_Expr(t1, parseOrderExpr(), cxt);
+      t1 = sema->not_equal_expression(t1, parseOrderExpr());
     else
       break;
   }
@@ -262,13 +340,13 @@ Expr* Parser::parseOrderExpr() {
 
   while (true) {
     if (match_if(LessThan_Tok))
-      t1 = new LessThan_Expr(t1, parseAddExpr(), cxt);
+      t1 = sema->less_than_expression(t1, parseAddExpr());
     else if (match_if(LessEqThan_Tok))
-      t1 = new LessEqThan_Expr(t1, parseAddExpr(), cxt);
+      t1 = sema->less_eq_than_expression(t1, parseAddExpr());
     else if (match_if(GreaterThan_Tok))
-      t1 = new GreaterThan_Expr(t1, parseAddExpr(), cxt);
+      t1 = sema->greater_than_expression(t1, parseAddExpr());
     else if (match_if(GreaterEqThan_Tok))
-      t1 = new GreaterEqThan_Expr(t1, parseAddExpr(), cxt);
+      t1 = sema->greater_eq_than_expression(t1, parseAddExpr());
     else
       break;
   }
@@ -280,9 +358,9 @@ Expr* Parser::parseAddExpr() {
 
   while (true) {
     if (match_if(Plus_Tok))
-      t1 = new Add_Expr(t1, parseMultExpr(), cxt);
+      t1 = sema->add_expression(t1, parseMultExpr());
     else if (match_if(Minus_Tok))
-    t1 = new Sub_Expr(t1, parseMultExpr(), cxt);
+      t1 = sema->sub_expression(t1, parseMultExpr());
     else
       break;
   }
@@ -294,11 +372,11 @@ Expr* Parser::parseMultExpr() {
 
   while (true) {
     if (match_if(Mult_Tok))
-      t1 = new Mult_Expr(t1, parseUnaryExpr(), cxt);
+      t1 = sema->mul_expression(t1, parseUnaryExpr());
     else if (match_if(Div_Tok))
-      t1 = new Div_Expr(t1, parseUnaryExpr(), cxt);
+      t1 = sema->div_expression(t1, parseUnaryExpr());
     else if (match_if(Mod_Tok))
-      t1 = new Mod_Expr(t1, parseUnaryExpr(), cxt);
+      t1 = sema->mod_expression(t1, parseUnaryExpr());
     else
       break;
   }
@@ -307,11 +385,11 @@ Expr* Parser::parseMultExpr() {
 
 Expr* Parser::parseUnaryExpr() {
   if (match_if(Minus_Tok))
-    return new Negation_Expr(parseUnaryExpr(), cxt);
+    return sema->negation_expression(parseUnaryExpr());
   else if (match_if(OneComplement_Tok))
-    return new OneComplement_Expr(parseUnaryExpr(), cxt);
+    return sema->one_complement_expression(parseUnaryExpr());
   else if (match_if(Not_Tok))
-    return new Not_Expr(parseUnaryExpr(), cxt);
+    return sema->not_expression(parseUnaryExpr());
   else
     return parsePrimaryExpr();
 }
