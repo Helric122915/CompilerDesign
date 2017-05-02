@@ -25,4 +25,11 @@ public:
 
   Type* obj;
 };
+
+Type* get_type(Type* t) {
+  if (auto* ref = dynamic_cast<Ref_Type*>(t))
+    return ref->obj;
+  else
+    return t;
+}
 #endif

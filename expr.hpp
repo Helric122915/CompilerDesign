@@ -3,6 +3,9 @@
 
 #include "context.hpp"
 
+class Name_Decl;
+void print(Expr*);
+
 // Base Expr class that defines an expression and will be inherited from by all expressions.
 class Expr {
 public:
@@ -23,7 +26,11 @@ public:
 class Expr::Visitor {
 public:
   virtual ~Visitor() = default;
+  virtual void visit(Assign_Expr*) = 0;
   virtual void visit(Value_Expr*) = 0;
+  virtual void visit(Ref_Expr*) = 0;
+  virtual void visit(Init_Expr*) = 0;
+  virtual void visit(Bind_Expr*) = 0;
   virtual void visit(Bool_Expr*) = 0;
   virtual void visit(And_Expr*) = 0;
   virtual void visit(Or_Expr*) = 0;
@@ -49,12 +56,73 @@ public:
   virtual void visit(OneComplement_Expr*) = 0;
 };
 
+class Initializer {
+private:
+public:
+  Initializer(Var_Decl* d) : init(d) { }
+
+  Var_Decl* init;
+};
+
+class Assign_Expr : public Expr {
+private:
+  Expr* e1;
+  Expr* e2;
+
+public:
+  Assign_Expr(Expr* e1, Expr* e2, Type* t) : e1(e1), e2(e2) { this->type = t; }
+
+  void accept(Visitor& v) { return v.visit(this); }
+
+  Expr* getE1() { return e1; }
+  Expr* getE2() { return e2; }
+};
+
+class Ref_Expr : public Expr {
+private:
+  Name_Decl* d;
+
+public:
+  Ref_Expr(Name_Decl* d, Type* t) : d(d) { this->type = t; }
+
+  Name_Decl* getDecl() { return d; }
+
+  // Overriding of accept virtual function to accept visitors.
+  void accept(Visitor& v) { return v.visit(this); }
+};
+
 class Value_Expr : public Expr {
 private:
   Expr* e;
 
 public:
-  Value_Expr(Expr* e, Type* t) : e(e) { this->type = t; }
+  Value_Expr(Expr* e, Type* t) : e(e) { this->type = t; print(this); std::cout << "<- Value_Expr\n"; }
+
+  Expr* getE() { return e; }
+
+  // Overriding of accept virtual function to accept visitors.
+  void accept(Visitor& v) { return v.visit(this); }
+};
+
+class Init_Expr : public Expr, public Initializer {
+private:
+  Expr* e;
+
+public:
+  Init_Expr(Expr* e, Var_Decl* d, Type* t) : Initializer(d), e(e) { this->type = t; }
+
+  Expr* getE() { return e; }
+
+  // Overriding of accept virtual function to accept visitors.
+  void accept(Visitor& v) { return v.visit(this); }
+};
+
+class Bind_Expr : public Expr, public Initializer {
+private:
+  Expr* e;
+
+public:
+  Bind_Expr(Expr* e, Var_Decl* d, Type* t) : Initializer(d), e(e) { this->type = t; }
 
   Expr* getE() { return e; }
 

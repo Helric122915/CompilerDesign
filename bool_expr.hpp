@@ -9,9 +9,7 @@ private:
   bool value;
 
 public:
-  Bool_Expr(bool value, ASTcontext* cxt) : value(value) {
-    this->type = (*cxt).Bool_;
-  }
+  Bool_Expr(bool value, ASTcontext* cxt) : value(value) { this->type = (*cxt).Bool_; }
   ~Bool_Expr() = default;
 
   // Accessor function to retrieve the private variable value.
@@ -27,12 +25,7 @@ private:
   Expr *e;
 
 public:
-  Not_Expr(Expr *e, ASTcontext* cxt) : e(e) {
-    if (e->type == (*cxt).Bool_)
-      this->type = (*cxt).Bool_;
-    else
-      throw Type_Exception("Not_Expr");
-  }
+  Not_Expr(Expr *e, ASTcontext* cxt) : e(e) { this->type = (*cxt).Bool_; }
   ~Not_Expr() = default;
 
   // Accessor function to retrieve the private variable e.
@@ -48,14 +41,7 @@ private:
   Expr *e1, *e2;
 
 public:
-  And_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
-    if (e1->type == (*cxt).Bool_ && e2->type == (*cxt).Bool_)
-      this->type = (*cxt).Bool_;
-    else if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
-      this->type = (*cxt).Int_;
-    else
-      throw Type_Exception("And_Expr");
-  }
+  And_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) { this->type = e1->type; }
   ~And_Expr() = default;
 
   // Accessor functions to retrieve the private variables e1 and e2.
@@ -72,14 +58,7 @@ private:
   Expr *e1, *e2;
 
 public:
-  Or_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
-    if (e1->type == (*cxt).Bool_ && e2->type == (*cxt).Bool_)
-      this->type = (*cxt).Bool_;
-    else if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
-      this->type = (*cxt).Int_;
-    else
-      throw Type_Exception("Or_Expr");
-  }
+  Or_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) { this->type = e1->type; }
   ~Or_Expr() = default;
 
   // Accessor functions to retrieve the private variables e1 and e2.
@@ -96,14 +75,7 @@ private:
   Expr *e1, *e2;
 
 public:
-  Xor_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
-    if(e1->type == (*cxt).Bool_ && e2->type == (*cxt).Bool_)
-      this->type = (*cxt).Bool_;
-    else if (e1->type == (*cxt).Int_ && e2->type == (*cxt).Int_)
-      this->type = (*cxt).Int_;
-    else
-      throw Type_Exception("Xor_Expr");
-  }
+  Xor_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) { this->type = e1->type; }
   ~Xor_Expr() = default;
 
   // Accessor functions to retrieve the private variables e1 and e2.
@@ -120,12 +92,7 @@ private:
   Expr *e1, *e2;
 
 public:
-  Eq_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
-    if (e1->type == e2->type)
-      this->type = (*cxt).Bool_;
-    else
-      throw Type_Exception("Eq_Expr");
-  }
+  Eq_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) { this->type = (*cxt).Bool_; }
   ~Eq_Expr() = default;
 
   // Accessor functions to retrieve the private variables e1 and e2.
@@ -142,12 +109,7 @@ private:
   Expr *e1, *e2;
 
 public:
-  NotEq_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
-    if (e1->type == e2->type)
-      this->type = (*cxt).Bool_;
-    else
-      throw Type_Exception("NotEq_Expr");
-  }
+  NotEq_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) { this->type = (*cxt).Bool_; }
   ~NotEq_Expr() = default;
 
   // Accessor functions to retrieve the private variables e1 and e2.
@@ -165,12 +127,7 @@ private:
   Expr *e1, *e2, *e3;
 
 public:
-  Cond_Expr(Expr *e1, Expr *e2, Expr *e3, ASTcontext* cxt) : e1(e1), e2(e2), e3(e3) {
-    if (e1->type == (*cxt).Bool_ && e2->type == e3->type)
-      this->type = e2->type;
-    else
-      throw Type_Exception("Cond_Expr");
-  }
+  Cond_Expr(Expr *e1, Expr *e2, Expr *e3, ASTcontext* cxt) : e1(e1), e2(e2), e3(e3) { this->type = e2->type; }
   ~Cond_Expr() = default;
 
   // Accessor functions to retrieve the private variables e1, e2 and e3.
@@ -188,12 +145,7 @@ private:
   Expr *e1, *e2;
 
 public:
-  AndThen_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
-    if (e1->type == (*cxt).Bool_ && e2->type == (*cxt).Bool_)
-      this->type = (*cxt).Bool_;
-    else
-      throw Type_Exception("AndThen_Expr");
-  }
+  AndThen_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) { this->type = (*cxt).Bool_; }
   ~AndThen_Expr() = default;
 
   // Accessor functions to retrieve the private variables e1 and e2.
@@ -210,12 +162,7 @@ private:
   Expr *e1, *e2;
 
 public:
-  OrElse_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) {
-    if (e1->type == (*cxt).Bool_ && e2->type == (*cxt).Bool_)
-      this->type = (*cxt).Bool_;
-    else
-      throw Type_Exception("OrElse_Expr");
-  }
+  OrElse_Expr(Expr *e1, Expr *e2, ASTcontext* cxt) : e1(e1), e2(e2) { this->type = (*cxt).Bool_; }
   ~OrElse_Expr() = default;
 
   // Accessor functions to retrieve the private variables e1 and e2.

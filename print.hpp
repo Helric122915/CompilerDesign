@@ -18,7 +18,11 @@ bool needs_parens(Expr* e) {
     bool getR() { return r; }
 
     // Overriding of each visit virtual function set to the desired functionality of each expression.
+    void visit(Assign_Expr* e) { r = false; }
     void visit(Value_Expr* e) { r = false; }
+    void visit(Ref_Expr* e) { r = false; }
+    void visit(Init_Expr* e) { r = false; }
+    void visit(Bind_Expr* e) { r = false; }
     void visit(Bool_Expr* e) { r = false; }
     void visit(And_Expr* e) { r = true; }
     void visit(Or_Expr* e) { r = true; }
@@ -67,7 +71,21 @@ void print(Expr *e)
 
   public:
     // Overriding of each visit virtual function set to the desired functionality of each expression.
+    void visit(Assign_Expr* e) {
+      print_enclosed(e->getE1());
+      std::cout << " = ";
+      print_enclosed(e->getE2());
+    }
     void visit(Value_Expr* e) {
+      print(e->getE());
+    }
+    void visit(Ref_Expr* e) {
+      std::cout << "ref: " << e->getDecl()->getName();
+    }
+    void visit(Init_Expr* e) {
+      print(e->getE());
+    }
+    void visit(Bind_Expr* e) {
       print(e->getE());
     }
     void visit(Bool_Expr* e) {

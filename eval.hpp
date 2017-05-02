@@ -3,36 +3,79 @@
 
 #include "bool_expr.hpp"
 #include "int_expr.hpp"
+#include "evaluator.hpp"
 
 // Implementation of the Visistor pattern allowing for the evaluation of an expression to be conducted.
 // Returns the result of the expression e that is passed in.
-int eval(Expr *e)
+Value eval(Evaluator& evaluate, Expr *e)
 {
   class V : public Expr::Visitor {
   private:
-    int r;
+    Value r;
+    Evaluator& ev;
 
   public:
+    V(Evaluator& ev) : ev(ev) {}
+
     // Accessor function to retrieve the private variable r.
-    int getR() { return r; }
+    Value getR() { return r; }
 
     // Overriding of each visit virtual function set to the desired functionality of each expression.
-    void visit(Value_Expr* e) { r = eval(e->getE()); }
-    void visit(Bool_Expr* e) { r = e->getValue(); }
-    void visit(And_Expr* e) { r = eval(e->getE1()) & eval(e->getE2()); }
-    void visit(Or_Expr* e) { r = eval(e->getE1()) | eval(e->getE2()); }
-    void visit(Xor_Expr* e) { r = eval(e->getE1()) ^ eval(e->getE2()); }
-    void visit(Not_Expr* e) { r = !eval(e->getE()); }
-    void visit(Eq_Expr* e) { r = eval(e->getE1()) == eval(e->getE2()); }
-    void visit(NotEq_Expr* e) { r = eval(e->getE1()) != eval(e->getE2()); }
-    void visit(Cond_Expr* e) { r = eval(e->getE1())?eval(e->getE2()):eval(e->getE3()); }
-    void visit(AndThen_Expr* e) { r = eval(e->getE1())?eval(e->getE2()):false; }
-    void visit(OrElse_Expr* e) { r = eval(e->getE1())?true:eval(e->getE2()); }
+    void visit(Assign_Expr* e) {
+      std::cout << "Evaluating Assign_Expr\n";
+      Value v1 = eval(ev, e->getE1());
 
-    void visit(Int_Expr* e) { r = e->getValue(); }
+      std::cout << "E2: ->"; print(e->getE2()); std::cout << '\n';
+
+      Value v2 = eval(ev, e->getE2());
+ 
+      std::cout << "v1-> "; v1.print_value(); std::cout << '\n';
+      std::cout << "v2-> "; v2.print_value(); std::cout << '\n';
+
+      v1.get_value_ref() = v2;
+
+      r = v1;
+
+      std::cout << "Finished Evaluating Assign_Expr\n";
+    }
+    void visit(Value_Expr* e) {
+      Value ref = eval(ev, e->getE());
+      r = ref.get_value_ref();
+    }
+    void visit(Ref_Expr* e) { /* Implement Sutton's from ast/lang.store/ev.cpp */ 
+      std::cout << "Evaluating Reefer Expr\n";
+      //if (dynamic_cast<Ref_Type*>(e->getType())) {
+      r = ev.automatic_locate(e->getDecl());
+
+      std::cout << "Ref_Expr: "; r.print_value();
+
+      // determine if it has automatic storage or not
+      // if automatic check frame
+      // else check context
+      //}
+      //else if (dynamic_cast<Fn_Type*>(e->getType())) {
+      // do magic function stuff
+      //}
+      std::cout << "Finished Evaluating Reefer Expr\n";
+    }
+    void visit(Init_Expr* e) { r = eval(ev, e->getE()); }
+    void visit(Bind_Expr* e) { r = eval(ev, e->getE()); }
+    void visit(Bool_Expr* e) { r = Value(e->getValue()); }
+    void visit(And_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() & eval(ev, e->getE2()).get_int()); }
+    void visit(Or_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() | eval(ev, e->getE2()).get_int()); }
+    void visit(Xor_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() ^ eval(ev, e->getE2()).get_int()); }
+    void visit(Not_Expr* e) { r = Value(!eval(ev, e->getE()).get_int()); }
+    void visit(Eq_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() == eval(ev, e->getE2()).get_int()); }
+    void visit(NotEq_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() != eval(ev, e->getE2()).get_int()); }
+    void visit(Cond_Expr* e) { r = Value(eval(ev, e->getE1()).get_int()?eval(ev, e->getE2()).get_int():eval(ev, e->getE3()).get_int()); }
+    void visit(AndThen_Expr* e) { r = Value(eval(ev, e->getE1()).get_int()?eval(ev, e->getE2()).get_int():false); }
+    void visit(OrElse_Expr* e) { r = Value(eval(ev, e->getE1()).get_int()?true:eval(ev, e->getE2()).get_int()); }
+
+    void visit(Int_Expr* e) { r = Value(e->getValue()); }
     void visit(Add_Expr* e) {
-      int e1Val = eval(e->getE1());
-      int e2Val = eval(e->getE2());
+      std::cout << "Evaluating Add Expr\n";
+      int e1Val = eval(ev, e->getE1()).get_int();
+      int e2Val = eval(ev, e->getE2()).get_int();
 
       if (e1Val > 0 && e2Val > 0)
 	if (std::numeric_limits<int>::max() - e1Val < e2Val)
@@ -41,11 +84,12 @@ int eval(Expr *e)
           if (std::numeric_limits<int>::min() - e1Val > e2Val)
             throw Overflow_Exception("Addition result too small.");
 
-      r = e1Val + e2Val;
+      r = Value(e1Val + e2Val);
+      std::cout << "Add_Expr evaluated r = " << r.get_int() << '\n';
     }
     void visit(Sub_Expr* e) {
-      int e1Val = eval(e->getE1());
-      int e2Val = eval(e->getE2());
+      int e1Val = eval(ev, e->getE1()).get_int();
+      int e2Val = eval(ev, e->getE2()).get_int();
 
       if (e1Val > 0 && e2Val < 0)
 	if (std::numeric_limits<int>::max() - e1Val < e2Val)
@@ -54,11 +98,11 @@ int eval(Expr *e)
 	if (std::numeric_limits<int>::min() - e1Val > -e2Val)
 	  throw Overflow_Exception("Subtraction result too small.");
 
-      r = e1Val - e2Val;
+      r = Value(e1Val - e2Val);
     }
     void visit(Mult_Expr* e) {
-      int e1Val = eval(e->getE1());
-      int e2Val = eval(e->getE2());
+      int e1Val = eval(ev, e->getE1()).get_int();
+      int e2Val = eval(ev, e->getE2()).get_int();
 
       if (e1Val == 0 || e2Val == 0)
 	r = 0;
@@ -72,36 +116,36 @@ int eval(Expr *e)
 	    if (std::numeric_limits<int>::min()/e2Val > e1Val)
 	      throw Overflow_Exception("Multiplication result too small.");
 
-      r = e1Val * e2Val;
+      r = Value(e1Val * e2Val);
     }
     void visit(Div_Expr* e) {
-      int e1Val = eval(e->getE1());
-      int e2Val = eval(e->getE2());
+      int e1Val = eval(ev, e->getE1()).get_int();
+      int e2Val = eval(ev, e->getE2()).get_int();
 
       if (e2Val == 0)
 	throw Overflow_Exception("Cannot divide by zero.");
       else if (e1Val == std::numeric_limits<int>::min() && e2Val == -1)
 	throw Overflow_Exception("Largest negative value is 1 larger than largest positive.");
 
-      r = e1Val / e2Val;
+      r = Value(e1Val / e2Val);
     }
     void visit(Mod_Expr* e) {
-      int e1Val = eval(e->getE1());
-      int e2Val = eval(e->getE2());
+      int e1Val = eval(ev, e->getE1()).get_int();
+      int e2Val = eval(ev, e->getE2()).get_int();
 
       if (e2Val == 0)
 	throw Overflow_Exception("Cannot divide by zero.");
 
-      r = e1Val % e2Val;
+      r = Value(e1Val % e2Val);
     }
-    void visit(LessThan_Expr* e) { r = eval(e->getE1()) < eval(e->getE2()); }
-    void visit(GreaterThan_Expr* e) { r = eval(e->getE1()) > eval(e->getE2()); }
-    void visit(LessEqThan_Expr* e) { r = eval(e->getE1()) <= eval(e->getE2()); }
-    void visit(GreaterEqThan_Expr* e) { r = eval(e->getE1()) >= eval(e->getE2()); }
-    void visit(Negation_Expr *e) { r = 0 - eval(e->getE()); }
-    void visit(OneComplement_Expr *e) { r = ~eval(e->getE()); }
+    void visit(LessThan_Expr* e) { std::cout << "E1 int val: " << eval(ev, e->getE1()).get_int() << '\n'; r = Value(eval(ev, e->getE1()).get_int() < eval(ev, e->getE2()).get_int()); }
+    void visit(GreaterThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() > eval(ev, e->getE2()).get_int()); }
+    void visit(LessEqThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() <= eval(ev, e->getE2()).get_int()); }
+    void visit(GreaterEqThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() >= eval(ev, e->getE2()).get_int()); }
+    void visit(Negation_Expr *e) { r = Value(0 - eval(ev, e->getE()).get_int()); }
+    void visit(OneComplement_Expr *e) { r = Value(~eval(ev, e->getE()).get_int()); }
   };
-  V vis;
+  V vis(evaluate);
   e->accept(vis);
   return vis.getR();
 }

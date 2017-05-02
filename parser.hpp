@@ -3,8 +3,10 @@
 
 #include <vector>
 #include "eval.hpp"
+#include "evalDecl.hpp"
 #include "token.hpp"
 #include "semantics.hpp"
+#include "declarative.hpp"
 
 class Parser {
 private:
@@ -18,6 +20,7 @@ private:
   Token* lookahead() const { return (eof() ? new Punct_Token(Eof_Tok) : *it); }
   Token* consume();
   Token* require(Token_Kind k);
+  bool match(Token_Kind k);
   bool match_if(Token_Kind k);
   bool match_if(Token_Kind k, Token*&);
   Stmt* statement();
@@ -32,10 +35,13 @@ private:
   Stmt* expression_statement();
   Decl* declaration();
   Decl* variable_declaration();
-  const Type* type_specifier();
-  const Type* simple_type_specifier();
+  //const Type* type_specifier();
+  Type* type_specifier();
+  //const Type* simple_type_specifier();
+  Type* simple_type_specifier();
   Expr* parseExpr();
-  Expr* parseCondExpr();
+  Expr* parseAssignExpr();
+  //Expr* parseCondExpr();
   Expr* parseLogicOrExpr();
   Expr* parseLogicAndExpr();
   Expr* parseBitWiseOrExpr();
@@ -47,7 +53,8 @@ private:
   Expr* parseMultExpr();
   Expr* parseUnaryExpr();
   Expr* parsePrimaryExpr();
-  const std::string identifier();
+  const std::string* identifier();
+  Expr* parseIdExpr();
 
 public:
   Parser(std::vector<Token*> tokens, int repOut, ASTcontext* cxt) : tokens(tokens), numberRepOut(repOut), cxt(cxt) { it = this->tokens.begin(); sema = new Semantic(cxt); }
@@ -59,6 +66,9 @@ public:
 // Returns the token that is consumed and advances the iterator.
 Token* Parser::consume() {
   Token* tok = lookahead();
+
+  std::cout << "Current Token: " << printName(lookahead()->name) << '\n';
+
   ++it;
   return tok;
 }
@@ -69,6 +79,10 @@ Token* Parser::require(Token_Kind k) {
     return consume();
   else
     throw Syntax_Exception("Expected a token of type " + printName(k));
+}
+
+bool Parser::match(Token_Kind k) {
+  return lookahead()->name == k;
 }
 
 // Attempts to match to a specific Token_Kind and returns false if it fails.
@@ -94,6 +108,7 @@ bool Parser::match_if(Token_Kind k, Token* & val) {
 }
 
 Stmt* Parser::statement() {
+  std::cout << "Parsing Statement\n";
   switch (lookahead()->name) {
   case LBrace_Tok:
     return block_statement();
@@ -118,6 +133,8 @@ std::vector<Stmt*> Parser::statement_seq() {
   std::vector<Stmt*> stmtSeq;
 
   while (lookahead()->name != RBrace_Tok) {
+    std::cout << "Parsing new Statement Seq Statement\n";
+    std::cout << printName(lookahead()->name) << " <- next token\n";
     Stmt* s = statement();
     stmtSeq.push_back(s);
   }
@@ -125,48 +142,62 @@ std::vector<Stmt*> Parser::statement_seq() {
 }
 
 Stmt* Parser::block_statement() {
-  // add declarative region
+  Declarative_Region region(sema, block_scope);
+  std::cout << "Parsing Block Statement\n";
 
   require(LBrace_Tok);
   std::vector<Stmt*> stmtSeq;
   if (lookahead()->name != RBrace_Tok)
     stmtSeq = statement_seq();
+  std::cout << "Returned statement seq.\n";
   match_if(RBrace_Tok);  
   return sema->block_statement(std::move(stmtSeq));
 }
 
 Stmt* Parser::if_statement() {
+  std::cout << "Parsing If Statement\n";
   require(If_Kw);
-  match_if(LParens_Tok);
+  require(LParens_Tok);
   Expr* e = parseExpr();
-  match_if(RParens_Tok);
+  require(RParens_Tok);
   Stmt* trueBlock = statement();
-  match_if(Else_Kw);
-  Stmt* falseBlock = statement();
+  
+  Stmt* falseBlock = nullptr;
+  if (match_if(Else_Kw)) {
+    std::cout << "Matched Else Kw\n";
+    falseBlock = statement();
+  }
   return sema->if_statement(e, trueBlock, falseBlock);
 }
 
 Stmt* Parser::while_statement() {
+  std::cout << "Parsing While Statement\n";
   require(While_Kw);
-  match_if(LParens_Tok);
+  require(LParens_Tok);
   Expr* e = parseExpr();
-  match_if(RParens_Tok);
+  require(RParens_Tok);
   Stmt* l = sema->while_init(e);
+  std::cout << "Parsing body of while loop\n";
   Stmt* s = statement();
   return sema->while_complete(l, s);
 }
 
 Stmt* Parser::break_statement() {
+  std::cout << "Parsing Break Statement\n";
   require(Break_Kw);
+  require(Semicolon_Tok);
   return sema->break_statement();
 }
 
 Stmt* Parser::continue_statement() {
+  std::cout << "Parsing Continue Statement\n";
   require(Continue_Kw);
+  require(Semicolon_Tok);
   return sema->continue_statement();
 }
 
 Stmt* Parser::return_statement() {
+  std::cout << "Parsing Return Statement\n";
   require(Return_Kw);
   // only used for void I believe
   //if (match_if(Semicolon_Tok))
@@ -177,7 +208,6 @@ Stmt* Parser::return_statement() {
 }
 
 Stmt* Parser::declaration_statement() {
-  //Decl* dec = declaration();
   return new Decl_Stmt(declaration());
 }
 
@@ -194,44 +224,36 @@ Decl* Parser::declaration() {
 
 Decl* Parser::variable_declaration() {
   // Retrieves the specified type and identifier.
-  const Type* t = type_specifier();
-  const std::string id = identifier();
+  //const Type* t = type_specifier();
+  std::cout << "Parsing Variable Declaration\n";
+  Type* t = type_specifier();
+  const std::string* id = identifier();
 
-  // If the decl already exists in the Symbol Table that means it is already in the table and
-  // can't be re-declared.
-  if (Decl* dec = (*cxt).retrieveSymbol(id))
-      throw Semantic_Exception("Variable " + id + " is already defined.");
-  
-  // Create a new decl that will be stored with the identifier in the Symbol Table.
-  Var_Decl* dec = new Var_Decl(id);
-  dec->type = t;
-  require(Assign_Tok);
+  Var_Decl* dec = sema->variable_declaration(id, t);
+
+  require(Assign_Tok);  
+
   Expr* expr = parseExpr();
 
-  // Throw an exception if the specified type doesn't match the associated expr type.
   if (t != expr->getType())
     throw Type_Exception("Type does not match declaration");
 
-  // Pre-evaluates the expr to only have to store either an int or bool expr in the decl.
-  if (t == (*cxt).Int_)
-    expr = new Int_Expr(eval(expr), numberRepOut, cxt);
-  else if (t == (*cxt).Bool_)
-    expr = new Bool_Expr(eval(expr), cxt);
+  print(expr); std::cout << "<- e in variable decl\n";
 
-  dec->init = expr;
-
-  // Stores the decl into Symbol Table with the same identifier.
-  (*cxt).insertDecl(dec);
+  Var_Decl* initDecl = sema->variable_complete(expr, dec);
 
   require(Semicolon_Tok);
-  return dec;
+
+  return initDecl;
 }
 
-const Type* Parser::type_specifier() {
+//const Type* Parser::type_specifier() {
+Type* Parser::type_specifier() {
   return simple_type_specifier();
 }
 
-const Type* Parser::simple_type_specifier() {
+//const Type* Parser::simple_type_specifier() {
+Type* Parser::simple_type_specifier() {
   switch(lookahead()->name) {
   case Int_Kw: consume();
     return (*cxt).Int_;
@@ -243,9 +265,34 @@ const Type* Parser::simple_type_specifier() {
 }
 
 Expr* Parser::parseExpr() {
-  return parseCondExpr();
+  return parseAssignExpr();
 }
 
+Expr* Parser::parseAssignExpr() {
+  std::cout << "Parsing Assign Expr\n";
+  Expr* t1 = parseLogicOrExpr();
+  if (match_if(QuestionMark_Tok)) {
+    Expr* t2 = parseExpr();
+    require(Colon_Tok);
+    return sema->condition_expression(t1, t2, parseExpr());    
+  }
+  else if (match_if(Assign_Tok)) {
+    Expr* t2 = parseAssignExpr();
+
+    if (!t2)
+      std::cout << "Right side don't equal sometin yo!\n";
+    else
+      std::cout << "Right side does equal sometin yo!\n";
+
+    print(t2);
+    std::cout << '\n';
+
+    return sema->assign_expression(t1, t2);
+  }
+  return t1;
+}
+
+/*
 Expr* Parser::parseCondExpr() {
   Expr* t1 = parseLogicOrExpr();
 
@@ -260,6 +307,7 @@ Expr* Parser::parseCondExpr() {
   }
   return t1;
 }
+*/
 
 Expr* Parser::parseLogicOrExpr() {
   Expr* t1 = parseLogicAndExpr();
@@ -403,12 +451,14 @@ Expr* Parser::parsePrimaryExpr() {
   }
   else if (match_if(Bool_Tok,temp))
     return new Bool_Expr(dynamic_cast<Bool_Token*>(temp)->getValue(), cxt);
+  else if (match(Ident_Tok))
+    return parseIdExpr();
   else if (match_if(LParens_Tok)) {
     Expr* expr = parseExpr();
-
     require(RParens_Tok);
     return expr;
   }
+  /*
   else if (match_if(Ident_Tok, temp)) {
     std::string variable = *dynamic_cast<Ident_Token*>(temp)->value;
 
@@ -425,10 +475,10 @@ Expr* Parser::parsePrimaryExpr() {
       Expr* expr = parseExpr();
 
       // Pre-evaluates the expr as an int or bool expr before it is stored within the decl.
-      if (expr->getType() == (*cxt).Int_)
-	expr = new Int_Expr(eval(expr), numberRepOut, cxt);
-      else if (expr->getType() == (*cxt).Bool_)
-	expr = new Bool_Expr(eval(expr), cxt);
+      //if (expr->getType() == (*cxt).Int_)
+      //expr = new Int_Expr(eval(new Evaluator(cxt), expr), numberRepOut, cxt);
+      //else if (expr->getType() == (*cxt).Bool_)
+      //expr = new Bool_Expr(eval(new Evaluator(cxt), expr), cxt);
 
       // Updates the expr stored within the decl.
       dec->init = expr;
@@ -438,12 +488,20 @@ Expr* Parser::parsePrimaryExpr() {
     }
     return dec->init;
   }
+  */
   else
     throw Syntax_Exception("Expecting Primary Expression");
 }
 
-const std::string Parser::identifier() {
-  Token* id = require(Ident_Tok);
-  return *dynamic_cast<Ident_Token*>(id)->value;
+const std::string* Parser::identifier() {
+  std::cout << "I'm parsing an identifier\n";
+  Token* ident = require(Ident_Tok);
+  return sema->identifier(ident);
+}
+
+Expr* Parser::parseIdExpr() {
+  std::cout << "I'm identifing an identifier\n";
+  const std::string* ident = identifier();
+  return sema->id_expression(ident);
 }
 #endif

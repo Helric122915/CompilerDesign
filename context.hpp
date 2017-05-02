@@ -1,12 +1,17 @@
 #ifndef CONTEXT_HPP
 #define CONTEXT_HPP
 
+#include <unordered_set>
 #include "token.hpp"
 #include "decl.hpp"
 #include "type.hpp"
 
 class Semantic;
+class Assign_Expr;
 class Value_Expr;
+class Ref_Expr;
+class Init_Expr;
+class Bind_Expr;
 // Bool Expressions
 class Bool_Expr;
 class And_Expr;
@@ -33,6 +38,30 @@ class GreaterEqThan_Expr;
 class Negation_Expr;
 class OneComplement_Expr;
 
+/*
+template<typename T>
+class Term_Hash {
+private:
+public:
+  std::size_t operator()(const T& t) const noexcept
+  {
+    hasher h;
+    hash(h, &t);
+    return h;
+  }
+};
+
+template<typename T>
+class Term_Eq {
+  bool operator()(const T& a, const T& b) const noexcept {
+    return equal(&a, &b);
+  }
+};
+
+template<typename T>
+using Canon_Set = std::unordered_set<T, Term_Hash<T>, Term_Eq<T>>;
+*/
+
 // Context class that creates the bool and int type that will be held as type* throughout the
 // program.
 class ASTcontext {
@@ -41,19 +70,28 @@ public:
   //const Int_Type* Int_ = new Int_Type();
   Bool_Type* Bool_ = new Bool_Type();
   Int_Type* Int_ = new Int_Type();
+  //Canon_Set<Ref_Type> Ref_;
+  //std::unordered_set<Fn_Type> Fn_Type_;
+  std::vector<Ref_Type> Ref_;
   std::unordered_map<std::string, Token*> Keywords;
   std::unordered_map<std::string, Decl*> SymTab;
 
-  ASTcontext();
+  int numberRepOut;
+
+  ASTcontext(int);
   ~ASTcontext() = default;
 
+  Type* Get_Ref_Type(Type*);
   Token* checkKeywords(std::string);
   Token* insertSymbol(std::string);
   Decl* retrieveSymbol(std::string);
   bool insertDecl(Decl*);
 };
 
-ASTcontext::ASTcontext() {
+ASTcontext::ASTcontext(int repOut) : numberRepOut(repOut) {
+  std::cout << "Int Type: " << Int_ << '\n';
+  std::cout << "Bool Type: " << Bool_ << '\n';
+
   // Base set of keywords for this language.
   Keywords.insert({"var", new Ident_Token(Var_Kw)});
   Keywords.insert({"int", new Ident_Token(Int_Kw)});
@@ -65,8 +103,19 @@ ASTcontext::ASTcontext() {
   Keywords.insert({"break", new Ident_Token(Break_Kw)});
   Keywords.insert({"continue", new Ident_Token(Continue_Kw)});
   Keywords.insert({"return", new Ident_Token(Return_Kw)});
+  Keywords.insert({"def", new Ident_Token(Def_Kw)});
   Keywords.insert({"true", new Bool_Token(true)});
   Keywords.insert({"false", new Bool_Token(false)});
+
+  Ref_.reserve(100);
+}
+
+Type* ASTcontext::Get_Ref_Type(Type* t) {
+  std::cout << "Creating a ref type of type t: " << t << '\n';
+  Type& ty = *(Ref_.emplace(Ref_.end(), t));
+
+  std::cout << "Address of ty: " << &ty << '\n';
+  return &ty;
 }
 
 // Checks if the identifier is stored within the keyword list.

@@ -11,7 +11,6 @@ private:
   std::string::iterator first;
   std::string::iterator last;
   std::string buff;
-  int numberRepOut;
   ASTcontext* cxt;
 
   bool eof() const { return first == last; }
@@ -25,7 +24,7 @@ private:
   bool isHex();
 
 public:
-  Lexer(std::string::iterator first, std::string::iterator last, int repOut, ASTcontext* cxt) : first(first), last(last), numberRepOut(repOut), cxt(cxt) {}
+  Lexer(std::string::iterator first, std::string::iterator last, ASTcontext* cxt) : first(first), last(last), cxt(cxt) {}
   ~Lexer() = default;
 
   Token* next();
@@ -154,21 +153,21 @@ Token* Lexer::lexeInt(char rep) {
     while (!eof() && std::isdigit(lookahead())) {
       buffer();
     }
-    return new Int_Token(std::stol(buff, nullptr, 10), numberRepOut);
+    return new Int_Token(std::stol(buff, nullptr, 10), cxt->numberRepOut);
   }
   else if (rep == 'h') {
     buffer();
     while (!eof() && isHex()) {
       buffer();
     }
-    return new Int_Token(std::stol(buff, nullptr, 16), numberRepOut);
+    return new Int_Token(std::stol(buff, nullptr, 16), cxt->numberRepOut);
   }
   else if (rep == 'b') {
     buffer();
     while (!eof() && (lookahead() == '0' || lookahead() == '1')) {
 	buffer();
       }
-    return new Int_Token(std::stol(buff, nullptr, 2), numberRepOut);
+    return new Int_Token(std::stol(buff, nullptr, 2), cxt->numberRepOut);
   }
   else
     throw Token_Exception("Unexpected Integer Type");

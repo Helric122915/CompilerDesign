@@ -4,56 +4,11 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include "enumeration.hpp"
 
 void printIntLexer(int,int);
 std::string convertBinaryLexer(int);
 std::string printName(int);
-
-enum Token_Kind {
-  Eof_Tok,
-  Eq_Tok,
-  NotEq_Tok,
-  LParens_Tok,
-  RParens_Tok,
-  LessThan_Tok,
-  LessEqThan_Tok,
-  GreaterThan_Tok,
-  GreaterEqThan_Tok,
-  Plus_Tok,
-  Minus_Tok,
-  Mult_Tok,
-  Div_Tok,
-  Mod_Tok,
-  Not_Tok,
-  Or_Tok,
-  OrElse_Tok,
-  And_Tok,
-  AndThen_Tok,
-  Xor_Tok,
-  OneComplement_Tok,
-  QuestionMark_Tok,
-  Colon_Tok,
-  Int_Tok,
-  Bool_Tok,
-  Ident_Tok,
-  Semicolon_Tok,
-  Assign_Tok,
-  LBrace_Tok,
-  RBrace_Tok,
-  Arrow_Tok,
-
-  // Keyword Tokens
-  Int_Kw,
-  Bool_Kw,
-  Var_Kw,
-  For_Kw,
-  If_Kw,
-  Else_Kw,
-  While_Kw,
-  Break_Kw,
-  Continue_Kw,
-  Return_Kw
-};
 
 class Token {
 public:
@@ -191,6 +146,7 @@ std::string printName(int name) {
   case Break_Kw: return "Break_Kw";
   case Continue_Kw: return "Continue_Kw";
   case Return_Kw: return "Return_Kw";
+  case Def_Kw: return "Def_Kw";
   default: "Invalid Token";
   }
 }

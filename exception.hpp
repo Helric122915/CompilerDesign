@@ -71,4 +71,16 @@ public:
     return "A Semantic Exception Error of Type: " + type;
   }
 };
+
+// Declares a specific exception to be thrown when a frame error occurs.
+// This exception allows for a string to be passed when throwing the syntax exception.
+class Frame_Exception : public Base_Exception {
+public:
+  Frame_Exception(std::string type) { this->type = type; }
+  ~Frame_Exception() = default;
+
+  virtual std::string message() const throw() {
+    return "A Frame Exception Error of Type: " + type;
+  }
+};
 #endif
