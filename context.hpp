@@ -71,9 +71,6 @@ public:
 };
 
 ASTcontext::ASTcontext(int repOut) : numberRepOut(repOut) {
-  std::cout << "Int Type: " << Int_ << '\n';
-  std::cout << "Bool Type: " << Bool_ << '\n';
-
   // Base set of keywords for this language.
   Keywords.insert({"var", new Ident_Token(Var_Kw)});
   Keywords.insert({"int", new Ident_Token(Int_Kw)});
@@ -89,8 +86,8 @@ ASTcontext::ASTcontext(int repOut) : numberRepOut(repOut) {
   Keywords.insert({"true", new Bool_Token(true)});
   Keywords.insert({"false", new Bool_Token(false)});
 
-  Ref_.reserve(100);
-  FnType_.reserve(100);
+  Ref_.reserve(1000);
+  FnType_.reserve(1000);
 
   tranUnit = new Program_Decl();
 }

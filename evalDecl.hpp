@@ -14,17 +14,17 @@ void eval_decl(Evaluator& evaluate, Decl* d) {
 
     void visit(Name_Decl* d) {} // Not Used
     void visit(Var_Decl* d) {
-      std::cout << "Evaluating that Var Decl yo\n";
-      Value val = ev.automatic_allocate();
-      ev.automatic_bind(d, val);
-
-      ev.copy_initialize(val, d->init);
+      if (!(dynamic_cast<Ret_Decl*>(d))) {
+	Value val = ev.automatic_allocate();
+	ev.automatic_bind(d, val);
+	
+	ev.copy_initialize(val, d->init);
+      }
     } 
     void visit(Fn_Decl* d) {} // Not Used
     void visit(Param_Decl* d) {} // Not Used
     void visit(Ret_Decl* d) {} // Not Used
     void visit(Local_Var_Decl* d) {
-      std::cout << "Evaluating that Local Var Decl yo\n";
       Value val = ev.automatic_allocate();
       ev.automatic_bind(d, val);
 

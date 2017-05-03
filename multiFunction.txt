@@ -1,0 +1,92 @@
+# This is a test program
+def summationLoop(int n) -> int {
+  var int x = 0;
+  var int count = 0;
+
+  while (count <= n) {
+    x = x + count;
+    count = count + 1;
+  }
+
+  return x;
+}
+
+def summation(int n) -> int {
+  if (n == 0)
+    return 0;
+  return n + summation(n-1);
+}
+
+def factorial(int n) -> int {
+  if (n == 0) {
+    return 1;
+  }
+  return n * factorial(n-1);
+}
+
+def selectFunction(bool n) -> bool {
+  if (n == false)
+    return false;
+  if (n == true)
+    return true;
+}
+
+def add(int x, int y) -> int {
+  return x + y;
+}
+
+def isPrimeRec(int p, int i) -> int {
+  if (i == p)
+    return 1;
+  if (p % i == 0)
+    return 0;
+  return isPrimeRec(p, i+1);
+}
+
+def isPrime(int p) -> int {
+  return isPrimeRec(p, 2);
+}
+
+def gcd(int m, int n) -> int {
+  if ((m % n) == 0)
+    return n;
+  else
+    return gcd(n, m % n);
+}
+
+def Ackermann(int m, int n) -> int {
+  if (m == 0)
+    return n + 1;
+  if (m > 0 && n == 0)
+    return Ackermann(m-1, 1);
+  if (m > 0 && n > 0)
+    return Ackermann(m-1, Ackermann(m, n-1));
+}
+
+def main() -> int
+{
+  var int amount = 100;
+  var bool select1 = false;
+  var bool select2 = false;
+
+  #var int x = add(amount, 7);
+  #return x;
+
+  #return Ackermann(3, 6);
+  #return Ackermann(2, 250);
+
+  #return isPrime(17);
+
+  #return gcd(468, 24);
+  #return gcd(135, 19);
+
+  #return fib(10);
+
+  if (selectFunction(select1))
+    return summationLoop(amount);
+  else
+    if (selectFunction(select2))
+      return factorial(amount - 88);
+    else
+      return summation(amount);
+}

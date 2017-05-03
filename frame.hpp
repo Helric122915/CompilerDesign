@@ -49,14 +49,12 @@ public:
 
   void bind(Name_Decl*,Value);
 
-  //std::unordered_map<Decl*, Store_Value*> map;
   std::unordered_map<Name_Decl*, Value_Stack> map;
   std::list<Store_Value> mem;
   std::stack<Frame*> frameStack;
 };
 
 Value Frame_Stack::allocate() {
-  std::cout << "Something is actually being allocated...wow\n";
   auto iter = mem.emplace(mem.end());
   iter->position = iter;
   return Value(&*iter);
@@ -78,9 +76,7 @@ Frame_Stack::Bind& Frame_Stack::find(Name_Decl* d) {
 }
 
 Value Frame_Stack::locate(Name_Decl* d) {
-  std::cout << "Searching for d: " << d->getName() << '\n';
   Frame_Stack::Bind& top = find(d);
-  top.get_val().print_value();
   return top.get_val();
 }
 

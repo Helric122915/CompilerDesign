@@ -63,14 +63,14 @@ int main(int argc, char *argv[])
     }
     
     if (tokens.size() > 0) {
-      for (std::vector<Token*>::iterator it = tokens.begin(); it != tokens.end(); ++it) {
+      /*for (std::vector<Token*>::iterator it = tokens.begin(); it != tokens.end(); ++it) {
 	(*it)->print();
 	
 	if (std::next(it) != tokens.end())
 	  std::cout << ", ";
       }
       std::cout << '\n';
-      
+      */
       Parser *parse = new Parser(tokens, outputTypeInt, cxt);
 
       std::cout << "Parsing Program\n";      
@@ -89,12 +89,11 @@ int main(int argc, char *argv[])
       }
 	
       if (entry) {
-	std::cout << "Yay i found main!!\n";
-	//Expr* ref = sema->id_expression(entry);
-	//Expr* call = sema->call_expression(ref, {});
+	Expr* ref = parse->sema->id_expression(entry);
+	Expr* call = parse->sema->call_expression(ref, {});
 
-	//Value v = eval(ev, call);
-	//v.print_value();
+	Value v = eval(ev, call);
+	v.print_value();
       }
       else {
 	std::cout << "Y'all messed up\n";

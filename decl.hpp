@@ -53,43 +53,40 @@ public:
 
 class Name_Decl : public Decl {
 private:
-public:
-  Name_Decl(std::string name) : name(name) {}
-
-  const std::string name;
-  const std::string getName() { return name; }   
-  void accept(Visitor& v) { v.visit(this); }
-};
-
-class Var_Decl : public Name_Decl {
-private:
   DeclContext dc;
 
 public:
-  Expr* init;
+  Name_Decl(std::string name, DeclContext dc) : name(name), dc(dc) {}
 
-  Var_Decl(const std::string name, DeclContext dc) : Name_Decl(name), dc(dc), init(nullptr) { this->type = nullptr;}
-  ~Var_Decl() = default;
+  const std::string name;
+  const std::string getName() { return name; }   
   void accept(Visitor& v) { v.visit(this); }
 
   DeclContext getDC() { return dc; }
 };
 
+class Var_Decl : public Name_Decl {
+private:
+public:
+  Expr* init;
+
+  Var_Decl(const std::string name, DeclContext dc) : Name_Decl(name, dc), init(nullptr) { this->type = nullptr;}
+  Var_Decl(const std::string name, Type* t, DeclContext dc) : Name_Decl(name, dc), init(nullptr) { this->type = t;}
+  ~Var_Decl() = default;
+  void accept(Visitor& v) { v.visit(this); }
+};
+
 class Fn_Decl : public Name_Decl {
 private:
-  DeclContext dc;
-
 public:
-  Fn_Decl(std::string name, std::vector<Decl*>&& decls, Decl* r, DeclContext dc, Type* t) : Name_Decl(name), params(std::move(decls)), ret(r), body(), dc(dc) { this->type = t; }
-  Fn_Decl(std::string name, std::vector<Decl*>&& decls, Decl* r, Stmt* b, DeclContext dc, Type* t) : Name_Decl(name), params(std::move(decls)), ret(r), body(b), dc(dc) { this->type = t; }
+  Fn_Decl(std::string name, std::vector<Decl*>&& decls, Decl* r, DeclContext dc, Type* t) : Name_Decl(name, dc), params(std::move(decls)), ret(r), body() { this->type = t; }
+  Fn_Decl(std::string name, std::vector<Decl*>&& decls, Decl* r, Stmt* b, DeclContext dc, Type* t) : Name_Decl(name, dc), params(std::move(decls)), ret(r), body(b) { this->type = t; }
 
   std::vector<Decl*> params;
   Decl* ret;
   Stmt* body;
 
   void accept(Visitor& v) { v.visit(this); }
-
-  DeclContext getDC() { return dc; }
 };
 
 class Param_Decl : public Var_Decl {

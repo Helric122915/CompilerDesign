@@ -14,7 +14,6 @@ private:
   std::vector<Token*>::iterator it;
   int numberRepOut;
   ASTcontext* cxt;
-  Semantic* sema;
 
   bool eof() const { return it == tokens.end(); }
   Token* lookahead() const { return (eof() ? new Punct_Token(Eof_Tok) : *it); }
@@ -55,7 +54,9 @@ private:
   Expr* parseAddExpr();
   Expr* parseMultExpr();
   Expr* parseUnaryExpr();
+  Expr* parsePostfixExpr();
   Expr* parsePrimaryExpr();
+  std::vector<Expr*> function_argument_list();
   const std::string* identifier();
   Expr* parseIdExpr();
 
@@ -63,14 +64,14 @@ public:
   Parser(std::vector<Token*> tokens, int repOut, ASTcontext* cxt) : tokens(tokens), numberRepOut(repOut), cxt(cxt) { it = this->tokens.begin(); sema = new Semantic(cxt); }
   ~Parser() = default;
 
+  Semantic* sema;
+
   Decl* translate();
 };
 
 // Returns the token that is consumed and advances the iterator.
 Token* Parser::consume() {
   Token* tok = lookahead();
-
-  std::cout << "Current Token: " << printName(lookahead()->name) << '\n';
 
   ++it;
   return tok;
@@ -111,7 +112,6 @@ bool Parser::match_if(Token_Kind k, Token* & val) {
 }
 
 Decl* Parser::translate() {
-  std::cout << "Starting program translation\n";
   Program_Decl* program = sema->start_translation();
 
   Declarative_Region region(sema, global_scope, program);
@@ -122,13 +122,11 @@ Decl* Parser::translate() {
 }
 
 std::vector<Decl*> Parser::topLevel_declaration_sequence() {
-  std::cout << "Starting top level decl seq\n";
   std::vector<Decl*> decls;
   while(!eof()) {
     Decl* d = topLevel_declaration();
     decls.push_back(d);
   }
-  std::cout << "Return top level decls\n";
   return decls;
 }
 
@@ -142,7 +140,6 @@ Decl* Parser::topLevel_declaration() {
 }
 
 Decl* Parser::function_declaration() {
-  std::cout << "Parsing a function\n";
   require(Def_Kw);
   const std::string* id = identifier();
 
@@ -164,14 +161,13 @@ Decl* Parser::function_declaration() {
 }
 
 std::vector<Decl*> Parser::function_parameter_list() {
-  std::cout << "Parsing function params\n";
   std::vector<Decl*> params;
   while(true) {
     Decl* param = function_parameter();
     params.push_back(param);
     if (match_if(Comma_Tok))
       continue;
-    if (match_if(RParens_Tok))
+    if (lookahead()->name == RParens_Tok)
       break;
     else
       throw Semantic_Exception("Expected Function Parameter");
@@ -181,7 +177,7 @@ std::vector<Decl*> Parser::function_parameter_list() {
 
 Decl* Parser::function_parameter() {
   Type* t = type_specifier();
-  if (match_if(Ident_Tok)) {
+  if (lookahead()->name == Ident_Tok) {
     const std::string* id = identifier();
     return sema->function_parameter(t, id);
   }
@@ -190,7 +186,6 @@ Decl* Parser::function_parameter() {
 }
 
 Stmt* Parser::statement() {
-  std::cout << "Parsing Statement\n";
   switch (lookahead()->name) {
   case LBrace_Tok:
     return block_statement();
@@ -215,8 +210,6 @@ std::vector<Stmt*> Parser::statement_seq() {
   std::vector<Stmt*> stmtSeq;
 
   while (lookahead()->name != RBrace_Tok) {
-    std::cout << "Parsing new Statement Seq Statement\n";
-    std::cout << printName(lookahead()->name) << " <- next token\n";
     Stmt* s = statement();
     stmtSeq.push_back(s);
   }
@@ -225,19 +218,16 @@ std::vector<Stmt*> Parser::statement_seq() {
 
 Stmt* Parser::block_statement() {
   Declarative_Region region(sema, block_scope);
-  std::cout << "Parsing Block Statement\n";
 
   require(LBrace_Tok);
   std::vector<Stmt*> stmtSeq;
   if (lookahead()->name != RBrace_Tok)
     stmtSeq = statement_seq();
-  std::cout << "Returned statement seq.\n";
   match_if(RBrace_Tok);  
   return sema->block_statement(std::move(stmtSeq));
 }
 
 Stmt* Parser::if_statement() {
-  std::cout << "Parsing If Statement\n";
   require(If_Kw);
   require(LParens_Tok);
   Expr* e = parseExpr();
@@ -246,40 +236,34 @@ Stmt* Parser::if_statement() {
   
   Stmt* falseBlock = nullptr;
   if (match_if(Else_Kw)) {
-    std::cout << "Matched Else Kw\n";
     falseBlock = statement();
   }
   return sema->if_statement(e, trueBlock, falseBlock);
 }
 
 Stmt* Parser::while_statement() {
-  std::cout << "Parsing While Statement\n";
   require(While_Kw);
   require(LParens_Tok);
   Expr* e = parseExpr();
   require(RParens_Tok);
   Stmt* l = sema->while_init(e);
-  std::cout << "Parsing body of while loop\n";
   Stmt* s = statement();
   return sema->while_complete(l, s);
 }
 
 Stmt* Parser::break_statement() {
-  std::cout << "Parsing Break Statement\n";
   require(Break_Kw);
   require(Semicolon_Tok);
   return sema->break_statement();
 }
 
 Stmt* Parser::continue_statement() {
-  std::cout << "Parsing Continue Statement\n";
   require(Continue_Kw);
   require(Semicolon_Tok);
   return sema->continue_statement();
 }
 
 Stmt* Parser::return_statement() {
-  std::cout << "Parsing Return Statement\n";
   require(Return_Kw);
   Expr* e = parseExpr();
   match_if(Semicolon_Tok);
@@ -303,22 +287,16 @@ Decl* Parser::declaration() {
 
 Decl* Parser::variable_declaration() {
   // Retrieves the specified type and identifier.
-  std::cout << "Parsing Variable Declaration\n";
   Type* t = type_specifier();
   const std::string* id = identifier();
 
-  Local_Var_Decl* dec = sema->variable_declaration(id, t);
+  Var_Decl* dec = sema->variable_declaration(id, t);
 
   require(Assign_Tok);  
 
   Expr* expr = parseExpr();
 
-  if (t != expr->getType())
-    throw Type_Exception("Type does not match declaration");
-
-  print(expr); std::cout << "<- e in variable decl\n";
-
-  Local_Var_Decl* initDecl = sema->variable_complete(expr, dec);
+  Var_Decl* initDecl = sema->variable_complete(expr, dec);
 
   require(Semicolon_Tok);
 
@@ -345,7 +323,6 @@ Expr* Parser::parseExpr() {
 }
 
 Expr* Parser::parseAssignExpr() {
-  std::cout << "Parsing Assign Expr\n";
   Expr* t1 = parseLogicOrExpr();
   if (match_if(QuestionMark_Tok)) {
     Expr* t2 = parseExpr();
@@ -354,14 +331,6 @@ Expr* Parser::parseAssignExpr() {
   }
   else if (match_if(Assign_Tok)) {
     Expr* t2 = parseAssignExpr();
-
-    if (!t2)
-      std::cout << "Right side don't equal sometin yo!\n";
-    else
-      std::cout << "Right side does equal sometin yo!\n";
-
-    print(t2);
-    std::cout << '\n';
 
     return sema->assign_expression(t1, t2);
   }
@@ -498,7 +467,23 @@ Expr* Parser::parseUnaryExpr() {
   else if (match_if(Not_Tok))
     return sema->not_expression(parseUnaryExpr());
   else
-    return parsePrimaryExpr();
+    return parsePostfixExpr();
+}
+
+Expr* Parser::parsePostfixExpr() {
+  Expr* e = parsePrimaryExpr();
+  while(true) {
+    if (match_if(LParens_Tok)) {
+      std::vector<Expr*> args;
+      if (lookahead()->name != RParens_Tok)
+	args = function_argument_list();
+      require(RParens_Tok);
+      e = sema->call_expression(e, std::move(args));
+    }
+    else
+      break;
+  }
+  return e;
 }
 
 Expr* Parser::parsePrimaryExpr() {
@@ -521,14 +506,27 @@ Expr* Parser::parsePrimaryExpr() {
     throw Syntax_Exception("Expecting Primary Expression");
 }
 
+std::vector<Expr*> Parser::function_argument_list() {
+  std::vector<Expr*> args;
+  while(true) {
+    Expr* arg = parseExpr();
+    args.push_back(arg);
+    if (match_if(Comma_Tok))
+      continue;
+    if (lookahead()->name == RParens_Tok || lookahead()->name == RBrace_Tok)
+      break;
+    else
+      throw Syntax_Exception("Expecting Function Argument");
+  }
+  return args;
+}
+
 const std::string* Parser::identifier() {
-  std::cout << "I'm parsing an identifier\n";
   Token* ident = require(Ident_Tok);
   return sema->identifier(ident);
 }
 
 Expr* Parser::parseIdExpr() {
-  std::cout << "I'm identifing an identifier\n";
   const std::string* ident = identifier();
   return sema->id_expression(ident);
 }

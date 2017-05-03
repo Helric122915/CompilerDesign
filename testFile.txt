@@ -1,7 +1,14 @@
 # This is a test program
+def factorial(int n) -> int {
+  if (n == 0) {
+    return 1;
+  }
+  return n * factorial(n-1);
+}
+
 def main() -> int 
 {
-  #var int x = 10;
+  var int x = factorial(4);
 
   #while (x < 22) {
   #  x = x + 1;
@@ -14,5 +21,7 @@ def main() -> int
   #  x = 5;
   #}
 
-  return 0;
+  return x;
+
+  #return factorial(4);
 }

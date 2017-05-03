@@ -70,11 +70,11 @@ public:
 
 Value& Value::get_value_ref() {
   if (is_integer())
-    std::cout << "I'm int\n";
+    throw Semantic_Exception("Can't call get value ref on int");
   else if (is_uninit())
-    std::cout << "I'm uninit\n";
+    throw Semantic_Exception("Can't call get value ref on uninit");
   else if (is_fn())
-    std::cout << "I'm function?\n";
+    throw Semantic_Exception("Can't call get value ref on function");
   else if (is_ref())
     return data.ref->get_value();
   else

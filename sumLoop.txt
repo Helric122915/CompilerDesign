@@ -1,0 +1,17 @@
+# This is a test program
+def sum(int n) -> int {
+  var int x = 0;
+  var int count = 0;
+
+  while (count <= n) {
+    x = x + count;
+    count = count + 1;
+  }
+
+  return x;
+}
+
+def main() -> int 
+{
+  return sum(100);
+}

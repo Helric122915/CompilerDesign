@@ -22,16 +22,11 @@ Value eval(Evaluator& evaluator, Expr *e)
 
     // Overriding of each visit virtual function set to the desired functionality of each expression.
     void visit(Call_Expr* e) {
-      std::cout << "Evaluating Call Expr\n";
-
-      if (ev.stack_depth() == 512)
+      if (ev.stack_depth() == 1024)
 	throw Overflow_Exception("www.StackOverflow.com");
 
       Value val = eval(ev, e->getFunction());
       auto* fn = static_cast<Fn_Decl*>(val.get_fn());
-
-      if (!fn->body)
-	std::cout << "Function has no body tooooo love?!\n";
 
       Stack_Frame function_frame(ev);
 
@@ -73,41 +68,23 @@ Value eval(Evaluator& evaluator, Expr *e)
       r = ret.get_value_ref();
     }
     void visit(Assign_Expr* e) {
-      std::cout << "Evaluating Assign_Expr\n";
       Value v1 = eval(ev, e->getE1());
-
-      std::cout << "E2: ->"; print(e->getE2()); std::cout << '\n';
-
       Value v2 = eval(ev, e->getE2());
  
-      std::cout << "v1-> "; v1.print_value(); std::cout << '\n';
-      std::cout << "v2-> "; v2.print_value(); std::cout << '\n';
-
       v1.get_value_ref() = v2;
 
       r = v1;
-
-      std::cout << "Finished Evaluating Assign_Expr\n";
     }
     void visit(Value_Expr* e) {
       Value ref = eval(ev, e->getE());
       r = ref.get_value_ref();
     }
-    void visit(Ref_Expr* e) { /* Implement Sutton's from ast/lang.store/ev.cpp */ 
-      std::cout << "Evaluating Reefer Expr\n";
-      //if (dynamic_cast<Ref_Type*>(e->getType())) {
-      r = ev.automatic_locate(e->getDecl());
-
-      std::cout << "Ref_Expr: "; r.print_value();
-
-      // determine if it has automatic storage or not
-      // if automatic check frame
-      // else check context
-      //}
-      //else if (dynamic_cast<Fn_Type*>(e->getType())) {
-      // do magic function stuff
-      //}
-      std::cout << "Finished Evaluating Reefer Expr\n";
+    void visit(Ref_Expr* e) {
+      if (Fn_Decl* fn = dynamic_cast<Fn_Decl*>(e->getDecl())) {
+	r = Value(fn);
+      }
+      else
+	r = ev.automatic_locate(e->getDecl());
     }
     void visit(Init_Expr* e) { r = eval(ev, e->getE()); }
     void visit(Bind_Expr* e) { r = eval(ev, e->getE()); }
@@ -124,7 +101,6 @@ Value eval(Evaluator& evaluator, Expr *e)
 
     void visit(Int_Expr* e) { r = Value(e->getValue()); }
     void visit(Add_Expr* e) {
-      std::cout << "Evaluating Add Expr\n";
       int e1Val = eval(ev, e->getE1()).get_int();
       int e2Val = eval(ev, e->getE2()).get_int();
 
@@ -136,7 +112,6 @@ Value eval(Evaluator& evaluator, Expr *e)
             throw Overflow_Exception("Addition result too small.");
 
       r = Value(e1Val + e2Val);
-      std::cout << "Add_Expr evaluated r = " << r.get_int() << '\n';
     }
     void visit(Sub_Expr* e) {
       int e1Val = eval(ev, e->getE1()).get_int();
@@ -189,7 +164,7 @@ Value eval(Evaluator& evaluator, Expr *e)
 
       r = Value(e1Val % e2Val);
     }
-    void visit(LessThan_Expr* e) { std::cout << "E1 int val: " << eval(ev, e->getE1()).get_int() << '\n'; r = Value(eval(ev, e->getE1()).get_int() < eval(ev, e->getE2()).get_int()); }
+    void visit(LessThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() < eval(ev, e->getE2()).get_int()); }
     void visit(GreaterThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() > eval(ev, e->getE2()).get_int()); }
     void visit(LessEqThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() <= eval(ev, e->getE2()).get_int()); }
     void visit(GreaterEqThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() >= eval(ev, e->getE2()).get_int()); }

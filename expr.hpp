@@ -112,7 +112,7 @@ private:
   Expr* e;
 
 public:
-  Value_Expr(Expr* e, Type* t) : e(e) { this->type = t; print(this); std::cout << "<- Value_Expr\n"; }
+  Value_Expr(Expr* e, Type* t) : e(e) { this->type = t; }
 
   Expr* getE() { return e; }
 
