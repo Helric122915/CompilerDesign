@@ -4,7 +4,7 @@
 class Declarative_Region {
 private:
 public:
-  Declarative_Region(Semantic*,int, Decl*);
+  Declarative_Region(Semantic*, int, Decl*);
   Declarative_Region(Semantic*, int);
   ~Declarative_Region();
 

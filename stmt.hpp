@@ -116,8 +116,6 @@ private:
   Expr* Return;
 
 public:
-  // Only used for void I believe
-  //Return_Stmt() = default;
   Return_Stmt(Expr* e) : Return(e) {}
 
   Expr* Get_Return() { return Return; }

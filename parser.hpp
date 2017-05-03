@@ -23,6 +23,12 @@ private:
   bool match(Token_Kind k);
   bool match_if(Token_Kind k);
   bool match_if(Token_Kind k, Token*&);
+  std::vector<Decl*> topLevel_declaration_sequence();
+  Decl* topLevel_declaration();
+  Decl* block_declaration();
+  Decl* function_declaration();
+  std::vector<Decl*> function_parameter_list();
+  Decl* function_parameter();
   Stmt* statement();
   std::vector<Stmt*> statement_seq();
   Stmt* block_statement();
@@ -35,13 +41,10 @@ private:
   Stmt* expression_statement();
   Decl* declaration();
   Decl* variable_declaration();
-  //const Type* type_specifier();
   Type* type_specifier();
-  //const Type* simple_type_specifier();
   Type* simple_type_specifier();
   Expr* parseExpr();
   Expr* parseAssignExpr();
-  //Expr* parseCondExpr();
   Expr* parseLogicOrExpr();
   Expr* parseLogicAndExpr();
   Expr* parseBitWiseOrExpr();
@@ -60,7 +63,7 @@ public:
   Parser(std::vector<Token*> tokens, int repOut, ASTcontext* cxt) : tokens(tokens), numberRepOut(repOut), cxt(cxt) { it = this->tokens.begin(); sema = new Semantic(cxt); }
   ~Parser() = default;
 
-  Stmt* next() { return statement(); }
+  Decl* translate();
 };
 
 // Returns the token that is consumed and advances the iterator.
@@ -105,6 +108,85 @@ bool Parser::match_if(Token_Kind k, Token* & val) {
   }
   else
     return false;
+}
+
+Decl* Parser::translate() {
+  std::cout << "Starting program translation\n";
+  Program_Decl* program = sema->start_translation();
+
+  Declarative_Region region(sema, global_scope, program);
+
+  program->decls = topLevel_declaration_sequence();
+
+  return sema->finish_translation(program);
+}
+
+std::vector<Decl*> Parser::topLevel_declaration_sequence() {
+  std::cout << "Starting top level decl seq\n";
+  std::vector<Decl*> decls;
+  while(!eof()) {
+    Decl* d = topLevel_declaration();
+    decls.push_back(d);
+  }
+  std::cout << "Return top level decls\n";
+  return decls;
+}
+
+Decl* Parser::topLevel_declaration() {
+  switch(lookahead()->name) {
+  case Def_Kw:
+    return function_declaration();
+  default:
+    throw Semantic_Exception("Expected Function Declaration");
+  }
+}
+
+Decl* Parser::function_declaration() {
+  std::cout << "Parsing a function\n";
+  require(Def_Kw);
+  const std::string* id = identifier();
+
+  Declarative_Region param_region(sema, function_param_scope);
+  std::vector<Decl*> params;
+  require(LParens_Tok);
+  if (lookahead()->name != RParens_Tok)
+    params = function_parameter_list();
+  require(RParens_Tok);
+
+  require(Arrow_Tok);
+  Type* t = type_specifier();
+
+  Decl* fn = sema->function_declaration(id, std::move(params), t);
+
+  Declarative_Region function_region(sema, function_scope, fn);
+  Stmt* s = block_statement();
+  return sema->function_completion(fn, s);
+}
+
+std::vector<Decl*> Parser::function_parameter_list() {
+  std::cout << "Parsing function params\n";
+  std::vector<Decl*> params;
+  while(true) {
+    Decl* param = function_parameter();
+    params.push_back(param);
+    if (match_if(Comma_Tok))
+      continue;
+    if (match_if(RParens_Tok))
+      break;
+    else
+      throw Semantic_Exception("Expected Function Parameter");
+  }
+  return params;
+}
+
+Decl* Parser::function_parameter() {
+  Type* t = type_specifier();
+  if (match_if(Ident_Tok)) {
+    const std::string* id = identifier();
+    return sema->function_parameter(t, id);
+  }
+  else
+    throw Semantic_Exception("Expected Function Parameter Identifier");
 }
 
 Stmt* Parser::statement() {
@@ -199,9 +281,6 @@ Stmt* Parser::continue_statement() {
 Stmt* Parser::return_statement() {
   std::cout << "Parsing Return Statement\n";
   require(Return_Kw);
-  // only used for void I believe
-  //if (match_if(Semicolon_Tok))
-  //  return new Return_Stmt();
   Expr* e = parseExpr();
   match_if(Semicolon_Tok);
   return sema->return_statement(e);
@@ -224,12 +303,11 @@ Decl* Parser::declaration() {
 
 Decl* Parser::variable_declaration() {
   // Retrieves the specified type and identifier.
-  //const Type* t = type_specifier();
   std::cout << "Parsing Variable Declaration\n";
   Type* t = type_specifier();
   const std::string* id = identifier();
 
-  Var_Decl* dec = sema->variable_declaration(id, t);
+  Local_Var_Decl* dec = sema->variable_declaration(id, t);
 
   require(Assign_Tok);  
 
@@ -240,19 +318,17 @@ Decl* Parser::variable_declaration() {
 
   print(expr); std::cout << "<- e in variable decl\n";
 
-  Var_Decl* initDecl = sema->variable_complete(expr, dec);
+  Local_Var_Decl* initDecl = sema->variable_complete(expr, dec);
 
   require(Semicolon_Tok);
 
   return initDecl;
 }
 
-//const Type* Parser::type_specifier() {
 Type* Parser::type_specifier() {
   return simple_type_specifier();
 }
 
-//const Type* Parser::simple_type_specifier() {
 Type* Parser::simple_type_specifier() {
   switch(lookahead()->name) {
   case Int_Kw: consume();
@@ -291,23 +367,6 @@ Expr* Parser::parseAssignExpr() {
   }
   return t1;
 }
-
-/*
-Expr* Parser::parseCondExpr() {
-  Expr* t1 = parseLogicOrExpr();
-
-  while (true) {
-    if (match_if(QuestionMark_Tok)) {
-      Expr* t2 = parseExpr();
-      if (match_if(Colon_Tok))
-	t1 = sema->condition_expression(t1, t2, parseExpr());
-    }
-    else
-      break;
-  }
-  return t1;
-}
-*/
 
 Expr* Parser::parseLogicOrExpr() {
   Expr* t1 = parseLogicAndExpr();
@@ -458,37 +517,6 @@ Expr* Parser::parsePrimaryExpr() {
     require(RParens_Tok);
     return expr;
   }
-  /*
-  else if (match_if(Ident_Tok, temp)) {
-    std::string variable = *dynamic_cast<Ident_Token*>(temp)->value;
-
-    // Checks to see if the variable exists in the Symbol Table.
-    Var_Decl* dec = dynamic_cast<Var_Decl*>((*cxt).retrieveSymbol(variable));
-
-    // If the variable doesn't exist throw an exception.
-    if (!dec)
-      throw Semantic_Exception("Variable " + variable + " has not been defined.");
-
-    // If an assignment operator is next then the variable is having its decl updated, otherwise
-    // just return the init expr.
-    if (match_if(Assign_Tok)) {
-      Expr* expr = parseExpr();
-
-      // Pre-evaluates the expr as an int or bool expr before it is stored within the decl.
-      //if (expr->getType() == (*cxt).Int_)
-      //expr = new Int_Expr(eval(new Evaluator(cxt), expr), numberRepOut, cxt);
-      //else if (expr->getType() == (*cxt).Bool_)
-      //expr = new Bool_Expr(eval(new Evaluator(cxt), expr), cxt);
-
-      // Updates the expr stored within the decl.
-      dec->init = expr;
-      (*cxt).insertDecl(dec);
-
-      return expr;
-    }
-    return dec->init;
-  }
-  */
   else
     throw Syntax_Exception("Expecting Primary Expression");
 }

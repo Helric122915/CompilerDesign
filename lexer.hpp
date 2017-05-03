@@ -43,6 +43,9 @@ Token* Lexer::next() {
 
   while(!eof()) {
     switch(lookahead()) {
+    case ',' : { consume();
+	return new Punct_Token(Comma_Tok);
+    }
     case ';': { consume();
 	return new Punct_Token(Semicolon_Tok);
     }
@@ -134,7 +137,8 @@ Token* Lexer::next() {
     case '0': return decideType();
     case '1' ... '9': return lexeInt('d');
     case '_':
-    case 'a' ... 'z': return lexeIdentifier();
+    case 'a' ... 'z':
+    case 'A' ... 'Z': return lexeIdentifier();
     case ' ': 
     case '\n': 
     case '\t': 
@@ -142,6 +146,7 @@ Token* Lexer::next() {
     case '\f': 
     case '\r': ignore();
       continue;
+    default: throw Token_Exception("Unexpected Token: " + lookahead());
     }
   }
   return nullptr;

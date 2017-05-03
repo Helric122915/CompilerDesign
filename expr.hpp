@@ -26,6 +26,7 @@ public:
 class Expr::Visitor {
 public:
   virtual ~Visitor() = default;
+  virtual void visit(Call_Expr*) = 0;
   virtual void visit(Assign_Expr*) = 0;
   virtual void visit(Value_Expr*) = 0;
   virtual void visit(Ref_Expr*) = 0;
@@ -62,6 +63,21 @@ public:
   Initializer(Var_Decl* d) : init(d) { }
 
   Var_Decl* init;
+};
+
+class Call_Expr : public Expr {
+private:
+  Expr* function;
+  std::vector<Expr*> arguments;
+
+public:
+  Call_Expr(Expr* fn, Type* t, std::vector<Expr*>& args) : function(fn), arguments(args) { this->type = t; }
+  Call_Expr(Expr* fn, Type* t, std::vector<Expr*>&& args) : function(fn), arguments(std::move(args)) { this->type = t; }
+
+  void accept(Visitor& v) { return v.visit(this); }
+
+  Expr* getFunction() { return function; }
+  std::vector<Expr*> getArguments() { return arguments; }
 };
 
 class Assign_Expr : public Expr {

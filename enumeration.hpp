@@ -40,6 +40,7 @@ enum Token_Kind {
   LBrace_Tok,
   RBrace_Tok,
   Arrow_Tok,
+  Comma_Tok,
 
   // Keyword Tokens
   Int_Kw,

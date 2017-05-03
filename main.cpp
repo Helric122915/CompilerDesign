@@ -28,9 +28,9 @@ int main(int argc, char *argv[])
   outputTypeInt = stoi(outputType);
 
   ASTcontext* cxt = new ASTcontext(outputTypeInt);
-  Evaluator eval(cxt);
+  Evaluator ev(cxt);
 
-  Stack_Frame main_frame(eval);
+  //Stack_Frame main_frame(ev);
 
   std::string file;
 
@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
     
     std::vector<Token*> tokens;
     
+    std::cout << "Lexing Tokens\n";
     Token *tok = lexe->next();
     
     while(tok) {
@@ -72,27 +73,36 @@ int main(int argc, char *argv[])
       
       Parser *parse = new Parser(tokens, outputTypeInt, cxt);
 
-      std::cout << "Parsing Statement 1\n";      
-      Stmt* s1 = parse->next();
-      //std::cout << "Parsing statement 2\n";
-      //Stmt* s2 = parse->next();
+      std::cout << "Parsing Program\n";      
+      Decl* ast = parse->translate();
 
-      std::cout << "Finished Parsing 1\n";
+      Program_Decl* program = static_cast<Program_Decl*>(ast);
+      Fn_Decl* entry = nullptr;
 
-      flow_kind flow = eval_stmt(eval, Value(), s1);
-      //Stmt* stmt = parse->next();	    
-      
-      //Expr* expr = parse->next()->getExpr();
-      
-      //if (expr->getType() == (*cxt).Int_)
-      //  Evaluate_Int(expr,stoi(outputType),cxt);
-      
-      //else if (expr->getType() == (*cxt).Bool_)
-      //  Evaluate_Bool(expr,cxt);
-      
-      //exitValue = eval(expr);
-      
+      for (Decl* d : program->decls) {
+	if (Name_Decl* name = dynamic_cast<Name_Decl*>(d)) {
+	  if (name->getName() == *(cxt->insert("main"))) {
+	      entry = dynamic_cast<Fn_Decl*>(name);
+	      break;
+	  }
+	}
+      }
+	
+      if (entry) {
+	std::cout << "Yay i found main!!\n";
+	//Expr* ref = sema->id_expression(entry);
+	//Expr* call = sema->call_expression(ref, {});
+
+	//Value v = eval(ev, call);
+	//v.print_value();
+      }
+      else {
+	std::cout << "Y'all messed up\n";
+      }
+
       delete parse;
+      delete program;
+      delete entry;
     }
     else
       std::cout << "There were no tokens to parse.\n";

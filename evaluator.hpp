@@ -3,14 +3,13 @@
 
 #include "enumeration.hpp"
 #include "frame.hpp"
-#include "value.hpp"
 
 class Evaluator;
+class Stmt;
 
 Value eval(Evaluator& evaluate, Expr* e);
 void eval_decl(Evaluator& evaluate, Decl* d);
-
-#include "evalStmt.hpp"
+flow_kind eval_stmt(Evaluator& evaluate, Value ret, Stmt* s);
 
 class ASTcontext;
 
@@ -56,12 +55,13 @@ public:
   ~Stack_Frame() { ev.leave_frame(); }
 };
 
+#include "evalStmt.hpp"
+
 Value evaluate(Evaluator& evaluate, Expr* e) {
   return eval(evaluate, e);
 }
 
 void evaluate(Evaluator& evaluate, Decl* d) {
-  //return eval_decl(eval, d);
   eval_decl(evaluate, d);
 } 
 

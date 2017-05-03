@@ -21,6 +21,7 @@ const Type* check(Expr* e, ASTcontext* cxt)
     const Type* getR() { return r; }
 
     // Overriding of each visit virtual function set to the desired functionality of each expression.
+    void visit(Call_Expr* e) { r = e->getType(); }
     void visit(Assign_Expr* e) { r = e->getType(); }
     void visit(Value_Expr* e) { r = e->getE()->getType(); }
     void visit(Ref_Expr* e) { r = e->getType(); }

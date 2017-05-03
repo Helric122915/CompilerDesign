@@ -17,6 +17,7 @@ int weight(Expr *e)
     int getR() { return r; }
 
     // Overriding of each visit virtual function set to the desired functionality of each expression.
+    void visit(Call_Expr* e) { r = 1 + weight(e->getFunction()); }
     void visit(Assign_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2()); }
     void visit(Value_Expr* e) { r = 1 + weight(e->getE()); }
     void visit(Ref_Expr* e) { r = 1; }

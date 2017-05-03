@@ -24,10 +24,13 @@ void eval_decl(Evaluator& evaluate, Decl* d) {
     void visit(Param_Decl* d) {} // Not Used
     void visit(Ret_Decl* d) {} // Not Used
     void visit(Local_Var_Decl* d) {
-      //Value loc = eval.automatic_allocate();
-      //eval.automatic_bind(d, loc);
-      //eval.copy_initialize(loc, d->get_initializer());
+      std::cout << "Evaluating that Local Var Decl yo\n";
+      Value val = ev.automatic_allocate();
+      ev.automatic_bind(d, val);
+
+      ev.copy_initialize(val, d->init);
     }
+    void visit(Program_Decl* d) {}
   };
   V vis(evaluate);
   d->accept(vis);

@@ -16,12 +16,16 @@ private:
   std::string ret = "Ret";
 
 public:
-  Semantic(ASTcontext* cxt) : cxt(cxt) { currCont = new Fn_Decl(main, std::move(std::vector<Decl*>()), new Ret_Decl(ret)); }
+  Semantic(ASTcontext* cxt) : cxt(cxt) {}
+
+  Program_Decl* start_translation() { return cxt->tranUnit; }
+  Decl* finish_translation(Decl* d) { std::cout << "Finishing Translation\n"; return d; }
 
   Expr* standard_conversion(Expr* e, Type* t);
   Expr* boolean_conversion(Expr* e);
   Expr* integer_conversion(Expr* e);
   Expr* arithmetic_conversion(Expr* e);
+  Expr* function_conversion(Expr*);
   void check_common(Expr* e1, Expr* e2);
   Stmt* block_statement(std::vector<Stmt*>&& stmtSeq);
   Stmt* if_statement(Expr* e, Stmt* trueBlock, Stmt* falseBlock);
@@ -33,8 +37,10 @@ public:
   Stmt* declaration_statement(Decl* d);
   Stmt* expression_statement(Expr* e);
 
-  // complex -> in trans_decl.cpp
-  //Decl* function_declaration(const std::string n,
+  Decl* function_declaration(const std::string*, std::vector<Decl*>&&, Type*);
+  Decl* function_completion(Decl* d) { return d; }
+  Decl* function_completion(Decl*, Stmt*);
+  Decl* function_parameter(Type*, const std::string*);
 
   Expr* assign_expression(Expr* e1, Expr* e2);
   Expr* condition_expression(Expr* e1, Expr* e2, Expr* e3);
@@ -57,7 +63,7 @@ public:
   Expr* div_expression(Expr* e1, Expr* e2);
   Expr* mod_expression(Expr* e1, Expr* e2);
   Expr* negation_expression(Expr* e);
-  Expr* call_expression(Expr* e, std::vector<Expr*> args);
+  Expr* call_expression(Expr* e, std::vector<Expr*>&& args);
   const std::string* identifier(Token* tok);
   Expr* id_expression(const std::string* symbol);
   Expr* id_expression(Decl* d);
@@ -65,14 +71,14 @@ public:
   Expr* false_literal();
   Expr* int_literal(Token* tok); 
 
-  Var_Decl* variable_declaration(const std::string*, Type*);
-  Var_Decl* variable_complete(Var_Decl*);
-  Var_Decl* variable_complete(Expr*, Var_Decl*);
+  Local_Var_Decl* variable_declaration(const std::string*, Type*);
+  Local_Var_Decl* variable_complete(Local_Var_Decl*);
+  Local_Var_Decl* variable_complete(Expr*, Local_Var_Decl*);
 
-  Expr* copy_initialize(Var_Decl*, Expr*);
+  Expr* copy_initialize(Local_Var_Decl*, Expr*);
   Expr* copy_initialize(Type*, Expr*);
 
-  Expr* reference_initialize(Var_Decl*, Expr*);
+  Expr* reference_initialize(Local_Var_Decl*, Expr*);
   Expr* reference_initialize(Type*, Expr*);
 
   void declare(Scope*,Name_Decl*);
@@ -86,6 +92,8 @@ public:
   void enter_scope(int k) { stack.push(k); }
   void leave_scope();
   Scope* current_scope() { return stack.top(); }
+
+  Fn_Decl* current_function() { return dynamic_cast<Fn_Decl*>(currCont); }
 
   void set_current_context(Decl* d) { currCont = d; }
   Decl* current_context() { return currCont; }
@@ -137,6 +145,20 @@ Expr* Semantic::arithmetic_conversion(Expr* e) {
   return e;
 }
 
+Expr* Semantic::function_conversion(Expr* e) {
+  Type* t = e->getType();
+
+  if (Ref_Type* ref = dynamic_cast<Ref_Type*>(t)) {
+    e = new Value_Expr(e, ref->obj);
+    t = e->getType();
+  }
+
+  if (auto* fn = dynamic_cast<Fn_Type*>(t))
+    return e;
+
+  throw Semantic_Exception("Expected Function Type");
+}
+
 void Semantic::check_common(Expr* e1, Expr* e2) {
   if (!e1 || !e2)
     throw Semantic_Exception("An Expression is Null in Check Common");
@@ -179,12 +201,15 @@ Stmt* Semantic::continue_statement() {
   return new Continue_Stmt();
 }
  
-// Might not support
-//Stmt* Semantic::return_statement() {}
- 
 Stmt* Semantic::return_statement(Expr* e) {
-  // requires function implementation
-  throw Semantic_Exception("Not implemented.");
+  std::cout << "Semanticating Return Stmt\n";
+  auto* fn = current_function();
+
+  std::cout << fn << "<- fn address\n";
+
+  Expr* ret = copy_initialize(dynamic_cast<Local_Var_Decl*>(fn->ret), e);
+  std::cout << "Returning return ret\n";
+  return new Return_Stmt(ret);
 }
 
 Stmt* Semantic::declaration_statement(Decl* d) {
@@ -195,8 +220,43 @@ Stmt* Semantic::expression_statement(Expr* e) {
   return new Expr_Stmt(e);
 }
 
-  // complex -> in trans_decl.cpp
-  //Decl* function_declaration(const std::string n, 
+Decl* Semantic::function_declaration(const std::string* id, std::vector<Decl*>&& params, Type* t) {
+  std::cout << "Declaring Function\n";
+  Scope* parent = current_scope()->parent;
+  Decl* context = current_context();
+
+  Ret_Decl* ret = new Ret_Decl("", t, DeclContext());
+  auto* fnType = cxt->Get_Fun_Type(params, ret);
+  Fn_Decl* fn = new Fn_Decl(*id, std::move(params), ret, context, fnType);
+
+  std::cout << "About to declare function yo\n";
+
+  declare(parent, fn);
+  return fn;
+  //throw Semantic_Exception("Function Declaration is not implemented");
+}
+
+Decl* Semantic::function_completion(Decl* d, Stmt* body) {
+  std::cout << "Completing Function\n";
+  Fn_Decl* fn = static_cast<Fn_Decl*>(d);
+  
+  std::cout << fn << "<- fn address\n";
+
+  fn->body = body;
+
+  std::cout << "Assigned body\n";
+
+  return fn;
+  //throw Semantic_Exception("Function Completion is not implemented");
+}
+
+Decl* Semantic::function_parameter(Type* t, const std::string* id) {
+  std::cout << "Declaring Function Param\n";
+  Param_Decl* param = new Param_Decl(*id, t, DeclContext());
+  declare(current_scope(), param);
+  return param;
+  //throw Semantic_Exception("Function Parameter is not implemented");
+}
 
 Expr* Semantic::assign_expression(Expr* e1, Expr* e2) {
   std::cout << "Creating Assign Expr\n";
@@ -413,8 +473,32 @@ Expr* Semantic::negation_expression(Expr* e) {
     throw Type_Exception("Negation_Expr expects an int Expr");
 }
 
-Expr* Semantic::call_expression(Expr* e, std::vector<Expr*> args) {
-  throw Semantic_Exception("Call Expression is not implemented");
+Expr* Semantic::call_expression(Expr* e, std::vector<Expr*>&& args) {
+  std::cout << "Semanticating Call Expr\n";
+  Expr* call = function_conversion(e);
+  Fn_Type* t = dynamic_cast<Fn_Type*>(call->getType());
+
+  if (!t)
+    throw Semantic_Exception("Callee is not a function");
+
+  std::vector<Type*>& params = t->params;
+  if (args.size() < params.size())
+    throw Semantic_Exception("Not enough arguments");
+  if (args.size() > params.size())
+    throw Semantic_Exception("Too many arguments");
+
+  std::vector<Expr*> exprs;
+  auto pi = params.begin();
+  auto ai = args.begin();
+  while(pi != params.end() && ai != args.end()) {
+    Expr* call = copy_initialize(*pi, *ai);
+    exprs.push_back(call);
+    ++pi;
+    ++ai;
+  }
+  Type* ret = t->ret;
+
+  return new Call_Expr(call, ret, std::move(exprs));
 }
 
 const std::string* Semantic::identifier(Token* tok) {
@@ -444,10 +528,11 @@ Expr* Semantic::id_expression(Decl* d) {
   return new Ref_Expr(dynamic_cast<Name_Decl*>(d), ref);
 }
 
-Var_Decl* Semantic::variable_declaration(const std::string* id, Type* t) {
-  // auto* owner = current_function();
 
-  Var_Decl* dec = new Var_Decl(*id);
+Local_Var_Decl* Semantic::variable_declaration(const std::string* id, Type* t) {
+  auto* owner = current_function();
+
+  Local_Var_Decl* dec = new Local_Var_Decl(*id, t, owner);
   dec->type = t;
 
   declare(current_scope(), dec);
@@ -456,22 +541,19 @@ Var_Decl* Semantic::variable_declaration(const std::string* id, Type* t) {
 }
 
 /*
-Var_Decl* Semantic::variable_complete(Var_Decl* d) {
-  std::cout << "Complete uninit Var\n";
-  //Var_Decl* dec = static_cast<Var_Decl*>(d);
-  
-  if (d->t == cxt->Bool_)
-    d->init = new Bool_Expr(0, cxt);
-  else if (d->t == cxt->Int_)
-    d->init = new Int_Expr(0, cxt);
-  else
-    throw Semantic_Exception("Unexpected Variable type");
+Var_Decl* Semantic::variable_declaration(const std::string* id, Type* t) {
+  //auto* owner = current_function();
 
-  return d;
+  Var_Decl* dec = new Var_Decl(*id);
+  dec->type = t;
+
+  declare(current_scope(), dec);
+
+  return dec;
 }
-*/ 
+*/
 
-Var_Decl* Semantic::variable_complete(Expr* e, Var_Decl* d) {
+Local_Var_Decl* Semantic::variable_complete(Expr* e, Local_Var_Decl* d) {
   std::cout << "Complete init Var\n";
 
   d->init = copy_initialize(d, e);
@@ -479,8 +561,10 @@ Var_Decl* Semantic::variable_complete(Expr* e, Var_Decl* d) {
   return d;
 }
 
-Expr* Semantic::copy_initialize(Var_Decl* var, Expr* e) {
-  std::cout << "Copy Initializing with Var_Decl Type: " << var->getType() << "\n";
+Expr* Semantic::copy_initialize(Local_Var_Decl* var, Expr* e) {
+  std::cout << "Copy Initializing with Local_Var_Decl Type\n";// << var->getType() << "\n";
+
+  std::cout << var << "<- var address\n";
 
   Expr* init = copy_initialize(var->getType(), e);
   if (auto* i = dynamic_cast<Init_Expr*>(init))
@@ -493,6 +577,7 @@ Expr* Semantic::copy_initialize(Var_Decl* var, Expr* e) {
 }
 
 Expr* Semantic::copy_initialize(Type* t, Expr* e) {
+  std::cout << "Copy Initializing with Type\n";// << var->getType() << "\n";
   if (dynamic_cast<Ref_Type*>(e->getType()))
     return reference_initialize(t, e);
 
@@ -501,7 +586,7 @@ Expr* Semantic::copy_initialize(Type* t, Expr* e) {
   return new Init_Expr(convert, nullptr, convert->getType());
 }
 
-Expr* Semantic::reference_initialize(Var_Decl* d, Expr* e) {
+Expr* Semantic::reference_initialize(Local_Var_Decl* d, Expr* e) {
   Expr* init = reference_initialize(d->getType(), e);
   if (auto* i = dynamic_cast<Bind_Expr*>(init))
     i->init = d;

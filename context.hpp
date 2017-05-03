@@ -7,6 +7,7 @@
 #include "type.hpp"
 
 class Semantic;
+class Call_Expr;
 class Assign_Expr;
 class Value_Expr;
 class Ref_Expr;
@@ -38,53 +39,34 @@ class GreaterEqThan_Expr;
 class Negation_Expr;
 class OneComplement_Expr;
 
-/*
-template<typename T>
-class Term_Hash {
-private:
-public:
-  std::size_t operator()(const T& t) const noexcept
-  {
-    hasher h;
-    hash(h, &t);
-    return h;
-  }
-};
-
-template<typename T>
-class Term_Eq {
-  bool operator()(const T& a, const T& b) const noexcept {
-    return equal(&a, &b);
-  }
-};
-
-template<typename T>
-using Canon_Set = std::unordered_set<T, Term_Hash<T>, Term_Eq<T>>;
-*/
-
 // Context class that creates the bool and int type that will be held as type* throughout the
 // program.
 class ASTcontext {
 public:
-  //const Bool_Type* Bool_ = new Bool_Type();
-  //const Int_Type* Int_ = new Int_Type();
   Bool_Type* Bool_ = new Bool_Type();
   Int_Type* Int_ = new Int_Type();
-  //Canon_Set<Ref_Type> Ref_;
-  //std::unordered_set<Fn_Type> Fn_Type_;
   std::vector<Ref_Type> Ref_;
+  std::vector<Fn_Type> FnType_;
   std::unordered_map<std::string, Token*> Keywords;
+  //std::unordered_map<std::string, void*> SymTab;  
   std::unordered_map<std::string, Decl*> SymTab;
 
   int numberRepOut;
+
+  Program_Decl* tranUnit;
 
   ASTcontext(int);
   ~ASTcontext() = default;
 
   Type* Get_Ref_Type(Type*);
+  Type* Get_Fun_Type(std::vector<Type*>&, Type*);
+  Type* Get_Fun_Type(std::vector<Type*>&&, Type*);
+  Type* Get_Fun_Type(std::vector<Decl*>&, Name_Decl*);
   Token* checkKeywords(std::string);
-  Token* insertSymbol(std::string);
-  Decl* retrieveSymbol(std::string);
+  Token* insertSymbol(const std::string&);
+  const std::string* insert(const std::string&);
+  const std::string* findSymbol(const std::string&);
+  Decl* retrieveSymbol(const std::string&);
   bool insertDecl(Decl*);
 };
 
@@ -108,14 +90,33 @@ ASTcontext::ASTcontext(int repOut) : numberRepOut(repOut) {
   Keywords.insert({"false", new Bool_Token(false)});
 
   Ref_.reserve(100);
+  FnType_.reserve(100);
+
+  tranUnit = new Program_Decl();
 }
 
 Type* ASTcontext::Get_Ref_Type(Type* t) {
-  std::cout << "Creating a ref type of type t: " << t << '\n';
   Type& ty = *(Ref_.emplace(Ref_.end(), t));
-
-  std::cout << "Address of ty: " << &ty << '\n';
   return &ty;
+}
+
+Type* ASTcontext::Get_Fun_Type(std::vector<Type*>& params, Type* ret) {
+  Type& ty = *(FnType_.emplace(FnType_.end(), params, ret));
+  return &ty;
+}
+
+Type* ASTcontext::Get_Fun_Type(std::vector<Type*>&& params, Type* ret) {
+  Type& ty = *(FnType_.emplace(FnType_.end(), std::move(params), ret));
+  return &ty;
+}
+
+Type* ASTcontext::Get_Fun_Type(std::vector<Decl*>& params, Name_Decl* ret) {
+  std::vector<Type*> types;
+  for(Decl* p : params) {
+    Name_Decl* param = static_cast<Name_Decl*>(p);
+    types.push_back(param->getType());
+  }
+  return Get_Fun_Type(std::move(types), ret->getType());
 }
 
 // Checks if the identifier is stored within the keyword list.
@@ -128,9 +129,19 @@ Token* ASTcontext::checkKeywords(std::string identifier) {
     return iter->second;
 }
 
+const std::string* ASTcontext::insert(const std::string& str) {
+  auto result = SymTab.insert({str, nullptr});
+  return &(result.first->first);
+}
+
+const std::string* ASTcontext::findSymbol(const std::string& str) {
+  auto iter = SymTab.find(str);
+  return &(iter->first);
+}
+
 // Checks if the Symbol is in the Symbol Table. If so it, it returns a token with the proper value.
 // If not one is created with the proper value.
-Token* ASTcontext::insertSymbol(std::string identifier) {
+Token* ASTcontext::insertSymbol(const std::string& identifier) {
   Ident_Token* tok = new Ident_Token(Ident_Tok);
 
   auto iter = SymTab.find(identifier);
@@ -147,7 +158,7 @@ Token* ASTcontext::insertSymbol(std::string identifier) {
 }
 
 // Returns the decl associated with a given identifier if it exists.
-Decl* ASTcontext::retrieveSymbol(std::string identifier) {
+Decl* ASTcontext::retrieveSymbol(const std::string& identifier) {
   auto iter = SymTab.find(identifier);
   if (iter != SymTab.end())
     return iter->second;

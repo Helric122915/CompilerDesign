@@ -7,7 +7,7 @@
 
 // Implementation of the Visistor pattern allowing for the evaluation of an expression to be conducted.
 // Returns the result of the expression e that is passed in.
-Value eval(Evaluator& evaluate, Expr *e)
+Value eval(Evaluator& evaluator, Expr *e)
 {
   class V : public Expr::Visitor {
   private:
@@ -21,6 +21,57 @@ Value eval(Evaluator& evaluate, Expr *e)
     Value getR() { return r; }
 
     // Overriding of each visit virtual function set to the desired functionality of each expression.
+    void visit(Call_Expr* e) {
+      std::cout << "Evaluating Call Expr\n";
+
+      if (ev.stack_depth() == 512)
+	throw Overflow_Exception("www.StackOverflow.com");
+
+      Value val = eval(ev, e->getFunction());
+      auto* fn = static_cast<Fn_Decl*>(val.get_fn());
+
+      if (!fn->body)
+	std::cout << "Function has no body tooooo love?!\n";
+
+      Stack_Frame function_frame(ev);
+
+      const std::vector<Expr*>& args = e->getArguments();
+      const std::vector<Decl*>& params = fn->params;
+
+      std::vector<Value> localVals;
+      localVals.reserve(args.size());
+
+      {
+	auto pi = params.begin();
+	auto ai = args.begin();
+	while (pi != params.end() && ai != args.end()) {
+	  Value loc = ev.automatic_allocate();
+	  localVals.push_back(loc);
+	  
+	  ev.copy_initialize(loc, *ai);
+	  
+	  ++pi;
+	  ++ai;
+	}
+      }
+
+      Value ret = ev.automatic_allocate();
+
+      {
+	auto pi = params.begin();
+	auto li = localVals.begin();
+	while (pi != params.end() && li != localVals.end()) {
+	  ev.automatic_bind(dynamic_cast<Name_Decl*>(*pi), *li);
+	  ++pi;
+	  ++li;
+	}
+	ev.automatic_bind(dynamic_cast<Name_Decl*>(fn->ret), ret);
+      }
+
+      evaluate(ev, ret, fn->body);
+
+      r = ret.get_value_ref();
+    }
     void visit(Assign_Expr* e) {
       std::cout << "Evaluating Assign_Expr\n";
       Value v1 = eval(ev, e->getE1());
@@ -145,7 +196,7 @@ Value eval(Evaluator& evaluate, Expr *e)
     void visit(Negation_Expr *e) { r = Value(0 - eval(ev, e->getE()).get_int()); }
     void visit(OneComplement_Expr *e) { r = Value(~eval(ev, e->getE()).get_int()); }
   };
-  V vis(evaluate);
+  V vis(evaluator);
   e->accept(vis);
   return vis.getR();
 }

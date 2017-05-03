@@ -136,6 +136,7 @@ std::string printName(int name) {
   case LBrace_Tok: return "LBrace_Tok";
   case RBrace_Tok: return "RBrace_Tok";
   case Arrow_Tok: return "Arrow_Tok";
+  case Comma_Tok: return "Comma_Tok";
   case Int_Kw: return "Int_Kw";
   case Bool_Kw: return "Bool_Kw";
   case Var_Kw: return "Var_Kw";

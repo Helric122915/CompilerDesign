@@ -18,12 +18,22 @@ class Type {
 // Declares the two specific types Bool and Int to be used for expressions.
 class Bool_Type : public Type {};
 class Int_Type : public Type {};
-// Not sure how to use
+
 class Ref_Type : public Type {
 public:
   Ref_Type(Type* t) : obj(t) {}
 
   Type* obj;
+};
+
+class Fn_Type : public Type {
+public:
+  Fn_Type(std::vector<Type*>& params, Type* r) : params(params), ret(r) {}
+  Fn_Type(std::vector<Type*>&& params, Type* r) : params(std::move(params)), ret(r) {}
+
+
+  std::vector<Type*> params;
+  Type* ret;
 };
 
 Type* get_type(Type* t) {

@@ -20,12 +20,12 @@ union Value_Data {
   Value_Data() : u() { }
   Value_Data(int n) : z(n) { }
   Value_Data(Store_Value* r) : ref(r) { }
-  //Value_Data(fn_value f) : fn(f) { }
+  Value_Data(Fn_Decl* f) : fn(f) { }
 
   int z;  
   Store_Value* ref;
   Uninit_Value u;
-  //mapping_decl* fn;
+  Fn_Decl* fn;
 
 };
 
@@ -37,8 +37,7 @@ public:
   Value() : kind(uninit_value), data() { }
   Value(int n) : kind(int_value), data(n) { }
   Value(Store_Value* ref) : kind(ref_value), data(ref) { }
-  
-  //Value(mapping_decl* fn) : kind(fn_value), data(fn) { }
+  Value(Fn_Decl* fn) : kind(fn_value), data(fn) { }
 
   bool is_uninit() { return kind == uninit_value; }
   bool is_integer() { return kind == int_value; }
@@ -47,7 +46,7 @@ public:
 
   int get_int() { return data.z; }
   Store_Value* get_ref() { return data.ref; }
-  //mapping_decl* get_fn { return data.fn; }
+  Fn_Decl* get_fn() { return data.fn; }
 
   void print_value();
 

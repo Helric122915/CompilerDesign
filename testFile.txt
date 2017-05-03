@@ -1,15 +1,18 @@
 # This is a test program
+def main() -> int 
 {
-  var int x = 10;
+  #var int x = 10;
 
-  while (x < 22) {
-    x = x + 1;
+  #while (x < 22) {
+  #  x = x + 1;
 
-    if (x == 19)
-      break;
-    else
-      continue;
+  #  if (x == 19)
+  #    break;
+  #  else
+  #    continue;
 
-    x = 5;
-  }
+  #  x = 5;
+  #}
+
+  return 0;
 }

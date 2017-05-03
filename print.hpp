@@ -18,6 +18,7 @@ bool needs_parens(Expr* e) {
     bool getR() { return r; }
 
     // Overriding of each visit virtual function set to the desired functionality of each expression.
+    void visit(Call_Expr* e) { r = false; }
     void visit(Assign_Expr* e) { r = false; }
     void visit(Value_Expr* e) { r = false; }
     void visit(Ref_Expr* e) { r = false; }
@@ -71,6 +72,9 @@ void print(Expr *e)
 
   public:
     // Overriding of each visit virtual function set to the desired functionality of each expression.
+    void visit(Call_Expr* e) {
+      std::cout << "Call_Expr";
+    }
     void visit(Assign_Expr* e) {
       print_enclosed(e->getE1());
       std::cout << " = ";
