@@ -23,6 +23,7 @@ int weight(Expr *e)
     void visit(Ref_Expr* e) { r = 1; }
     void visit(Init_Expr* e) { r = 1 + weight(e->getE()); }
     void visit(Bind_Expr* e) { r = 1 + weight(e->getE()); }
+    void visit(Assert_Expr* e) { r = 1 + weight(e->getE()); }
     void visit(Bool_Expr* e) { r = 1; }
     void visit(And_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2()); }
     void visit(Or_Expr* e) { r = 1 + weight(e->getE1()) + weight(e->getE2()); }

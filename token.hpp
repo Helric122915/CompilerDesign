@@ -148,6 +148,7 @@ std::string printName(int name) {
   case Continue_Kw: return "Continue_Kw";
   case Return_Kw: return "Return_Kw";
   case Def_Kw: return "Def_Kw";
+  case Assert_Kw: return "Assert_Kw";
   default: "Invalid Token";
   }
 }

@@ -36,6 +36,7 @@ private:
   Stmt* break_statement();
   Stmt* continue_statement();
   Stmt* return_statement();
+  Stmt* assert_statement();
   Stmt* declaration_statement();
   Stmt* expression_statement();
   Decl* declaration();
@@ -44,6 +45,7 @@ private:
   Type* simple_type_specifier();
   Expr* parseExpr();
   Expr* parseAssignExpr();
+  Expr* parseCondExpr();
   Expr* parseLogicOrExpr();
   Expr* parseLogicAndExpr();
   Expr* parseBitWiseOrExpr();
@@ -199,6 +201,8 @@ Stmt* Parser::statement() {
     return continue_statement();
   case Return_Kw:
     return return_statement();
+  case Assert_Kw:
+  return assert_statement();
   case Var_Kw:
     return declaration_statement();
   default:
@@ -270,6 +274,13 @@ Stmt* Parser::return_statement() {
   return sema->return_statement(e);
 }
 
+Stmt* Parser::assert_statement() {
+  require(Assert_Kw);
+  Expr *e = parseCondExpr();
+  require(Semicolon_Tok);
+  return sema->assert_statement(e);
+}
+
 Stmt* Parser::declaration_statement() {
   return new Decl_Stmt(declaration());
 }
@@ -333,6 +344,21 @@ Expr* Parser::parseAssignExpr() {
     Expr* t2 = parseAssignExpr();
 
     return sema->assign_expression(t1, t2);
+  }
+  return t1;
+}
+
+Expr* Parser::parseCondExpr() {
+  Expr* t1 = parseLogicOrExpr();
+
+  while(true) {
+    if (match_if(QuestionMark_Tok)) {
+      Expr* t2 = parseExpr();
+      if (match_if(Colon_Tok))
+	t1 = sema->condition_expression(t1, t2, parseExpr());
+    }
+    else
+      break;
   }
   return t1;
 }

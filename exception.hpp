@@ -83,4 +83,28 @@ public:
     return "A Frame Exception Error of Type: " + type;
   }
 };
+
+// Declares a specific exception to be thrown when a interpretor error occurs.
+// This exception allows for a string to be passed when throwing the syntax exception.
+class Interpretor_Exception : public Base_Exception {
+public:
+  Interpretor_Exception(std::string type) { this->type = type; }
+  ~Interpretor_Exception() = default;
+
+  virtual std::string message() const throw() {
+    return "A Interpretor Exception Error of Type: " + type;
+  }
+};
+ 
+// Declares a specific exception to be thrown when a generator error occurs.
+// This exception allows for a string to be passed when throwing the syntax exception.
+class Generator_Exception : public Base_Exception {
+public:
+  Generator_Exception(std::string type) { this->type = type; }
+  ~Generator_Exception() = default;
+
+  virtual std::string message() const throw() {
+    return "A Generator Exception Error of Type: " + type;
+  }
+};
 #endif

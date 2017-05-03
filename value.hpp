@@ -48,7 +48,7 @@ public:
   Store_Value* get_ref() { return data.ref; }
   Fn_Decl* get_fn() { return data.fn; }
 
-  void print_value();
+  void print_value(int);
 
   Value& get_value_ref();
   Value_Data data;
@@ -81,14 +81,13 @@ Value& Value::get_value_ref() {
     throw Semantic_Exception("Discrim union upset (value)");
 }
 
-void Value::print_value() {
+void Value::print_value(int numberRep = 10) {
   switch(kind) {
   case uninit_value: std::cout << "uninit_value\n"; break;
-  case int_value: std::cout << "Int_Value: " << data.z << '\n'; break;
+  case int_value: std::cout << "Int_Value: "; printIntLexer(data.z, numberRep); std::cout << '\n'; break;
   case ref_value: {
-    std::cout << "Ref_Value: " << data.ref << '\n'; 
     if (data.ref)
-      std::cout << "Ref_Value: "; data.ref->val.print_value();
+      data.ref->val.print_value();
     break;
   }
   case fn_value: break;

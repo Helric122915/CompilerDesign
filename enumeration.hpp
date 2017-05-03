@@ -53,7 +53,8 @@ enum Token_Kind {
   Break_Kw,
   Continue_Kw,
   Return_Kw,
-  Def_Kw
+  Def_Kw,
+  Assert_Kw
 };
 
 enum Value_Kind {

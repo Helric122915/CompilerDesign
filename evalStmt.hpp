@@ -4,7 +4,6 @@
 #include "stmt.hpp"
 #include "value.hpp"
 #include "print.hpp"
-//#include "evaluator.hpp"
 
 class Evaluator;
 

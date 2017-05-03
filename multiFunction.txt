@@ -36,7 +36,7 @@ def add(int x, int y) -> int {
 }
 
 def isPrimeRec(int p, int i) -> int {
-  if (i == p)
+  if (i*i > p)
     return 1;
   if (p % i == 0)
     return 0;
@@ -63,30 +63,66 @@ def Ackermann(int m, int n) -> int {
     return Ackermann(m-1, Ackermann(m, n-1));
 }
 
+def Easter(int year, bool dayOrMonth) -> int {
+  var int a = year % 19;
+  var int b = year / 100;
+  var int c = year % 100;
+  var int d = b / 4;
+  var int e = b % 4;
+  var int f = (b + 8) / 25;
+  var int g = (b - f + 1) / 3;
+  var int h = (19 * a + b - d - g + 15) % 30;
+  var int i = c / 4;
+  var int k = c % 4; 
+  var int l = (32 + 2 * e + 2 * i - h - k) % 7;
+  var int m = (a + 11 * h + 22 * l) / 451;
+
+  var int ret = 0;  
+  if (dayOrMonth)
+    ret = ((h + l - 7 * m + 114) % 31) + 1;
+  else
+    ret = (h + l - 7 * m + 114) / 31;
+  return ret;
+}
+
 def main() -> int
 {
   var int amount = 100;
-  var bool select1 = false;
+  var bool select1 = true;
   var bool select2 = false;
+
+  var int easterYear = 2045;
+  var int easterDay = Easter(easterYear, true);
+  var int easterMonth = Easter(easterYear, false);
+  var bool dayOrMonth = true;
+
+  #var int x = amount = Ackermann(3, 5);
+
+  return Ackermann(3,7);
+  #var int x = amount = 57;
+
+  #return x;
+
+  #return (dayOrMonth ? easterMonth : easterDay);
 
   #var int x = add(amount, 7);
   #return x;
 
-  #return Ackermann(3, 6);
+  #return Ackermann(3, 7);
   #return Ackermann(2, 250);
 
-  #return isPrime(17);
+  #return isPrime(111791);
 
   #return gcd(468, 24);
   #return gcd(135, 19);
 
   #return fib(10);
 
-  if (selectFunction(select1))
-    return summationLoop(amount);
-  else
-    if (selectFunction(select2))
-      return factorial(amount - 88);
-    else
-      return summation(amount);
+  #if (selectFunction(select1))
+  #  return summationLoop(amount);
+  #else
+  #  if (selectFunction(select2))
+  #    return factorial(amount - 88);
+  #  else
+  #    return summation(amount);
 }

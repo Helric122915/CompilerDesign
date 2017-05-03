@@ -24,6 +24,7 @@ bool needs_parens(Expr* e) {
     void visit(Ref_Expr* e) { r = false; }
     void visit(Init_Expr* e) { r = false; }
     void visit(Bind_Expr* e) { r = false; }
+    void visit(Assert_Expr* e) { r = false; }
     void visit(Bool_Expr* e) { r = false; }
     void visit(And_Expr* e) { r = true; }
     void visit(Or_Expr* e) { r = true; }
@@ -90,6 +91,9 @@ void print(Expr *e)
       print(e->getE());
     }
     void visit(Bind_Expr* e) {
+      print(e->getE());
+    }
+    void visit(Assert_Expr* e) {
       print(e->getE());
     }
     void visit(Bool_Expr* e) {

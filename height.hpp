@@ -23,6 +23,7 @@ int height(Expr *e)
     void visit(Ref_Expr* e) { r = 1; }
     void visit(Init_Expr* e) { r = 1 + height(e->getE()); }
     void visit(Bind_Expr* e) { r = 1 + height(e->getE()); }
+    void visit(Assert_Expr* e) { r = 1 + height(e->getE()); }
     void visit(Bool_Expr* e) { r = 1; }
     void visit(And_Expr* e) { r = 1 + std::max(height(e->getE1()),height(e->getE2())); }
     void visit(Or_Expr* e) { r = 1 + std::max(height(e->getE1()),height(e->getE2())); }

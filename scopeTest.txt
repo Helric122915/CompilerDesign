@@ -1,0 +1,23 @@
+# This is a test program
+def main() -> int
+{
+  var int x = 10;
+  var int y = 1;
+
+  {
+    var int x = 15;
+
+    y = sum(x + y);
+
+    {
+      var int x = 27;
+
+      if (x == 27)
+        return y;
+    }
+  }
+}
+
+def sum(int x, int y) -> int {
+  return x + y;
+}

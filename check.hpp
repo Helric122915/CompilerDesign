@@ -27,6 +27,7 @@ const Type* check(Expr* e, ASTcontext* cxt)
     void visit(Ref_Expr* e) { r = e->getType(); }
     void visit(Init_Expr* e) { r = e->getType(); }
     void visit(Bind_Expr* e) { r = e->getType(); }
+    void visit(Assert_Expr* e) { r = e->getType(); }
     void visit(Bool_Expr* e) { r = (*cxt).Bool_; }
     void visit(And_Expr* e) {
       if (e->getType())

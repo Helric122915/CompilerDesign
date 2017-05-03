@@ -32,6 +32,7 @@ public:
   virtual void visit(Ref_Expr*) = 0;
   virtual void visit(Init_Expr*) = 0;
   virtual void visit(Bind_Expr*) = 0;
+  virtual void visit(Assert_Expr*) = 0;
   virtual void visit(Bool_Expr*) = 0;
   virtual void visit(And_Expr*) = 0;
   virtual void visit(Or_Expr*) = 0;
@@ -139,6 +140,19 @@ private:
 
 public:
   Bind_Expr(Expr* e, Var_Decl* d, Type* t) : Initializer(d), e(e) { this->type = t; }
+
+  Expr* getE() { return e; }
+
+  // Overriding of accept virtual function to accept visitors.
+  void accept(Visitor& v) { return v.visit(this); }
+};
+
+class Assert_Expr : public Expr {
+private:
+  Expr* e;
+
+public:
+  Assert_Expr(Expr* e, Type* t) : e(e) { this->type = t; }
 
   Expr* getE() { return e; }
 

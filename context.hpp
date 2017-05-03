@@ -13,6 +13,7 @@ class Value_Expr;
 class Ref_Expr;
 class Init_Expr;
 class Bind_Expr;
+class Assert_Expr;
 // Bool Expressions
 class Bool_Expr;
 class And_Expr;
@@ -83,6 +84,7 @@ ASTcontext::ASTcontext(int repOut) : numberRepOut(repOut) {
   Keywords.insert({"continue", new Ident_Token(Continue_Kw)});
   Keywords.insert({"return", new Ident_Token(Return_Kw)});
   Keywords.insert({"def", new Ident_Token(Def_Kw)});
+  Keywords.insert({"assert", new Ident_Token(Assert_Kw)});
   Keywords.insert({"true", new Bool_Token(true)});
   Keywords.insert({"false", new Bool_Token(false)});
 

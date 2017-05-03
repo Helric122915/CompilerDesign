@@ -22,7 +22,7 @@ Value eval(Evaluator& evaluator, Expr *e)
 
     // Overriding of each visit virtual function set to the desired functionality of each expression.
     void visit(Call_Expr* e) {
-      if (ev.stack_depth() == 1024)
+      if (ev.stack_depth() == 2048)
 	throw Overflow_Exception("www.StackOverflow.com");
 
       Value val = eval(ev, e->getFunction());
@@ -67,6 +67,7 @@ Value eval(Evaluator& evaluator, Expr *e)
 
       r = ret.get_value_ref();
     }
+
     void visit(Assign_Expr* e) {
       Value v1 = eval(ev, e->getE1());
       Value v2 = eval(ev, e->getE2());
@@ -88,6 +89,12 @@ Value eval(Evaluator& evaluator, Expr *e)
     }
     void visit(Init_Expr* e) { r = eval(ev, e->getE()); }
     void visit(Bind_Expr* e) { r = eval(ev, e->getE()); }
+    void visit(Assert_Expr* e) {
+      Value cond = eval(ev, e->getE());
+      if (!cond.get_int())
+	throw Interpretor_Exception("Assertion Failed");
+      r = cond;
+    }
     void visit(Bool_Expr* e) { r = Value(e->getValue()); }
     void visit(And_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() & eval(ev, e->getE2()).get_int()); }
     void visit(Or_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() | eval(ev, e->getE2()).get_int()); }
@@ -164,8 +171,7 @@ Value eval(Evaluator& evaluator, Expr *e)
 
       r = Value(e1Val % e2Val);
     }
-    void visit(LessThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() < eval(ev, e->getE2()).get_int()); }
-    void visit(GreaterThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() > eval(ev, e->getE2()).get_int()); }
+    void visit(LessThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() < eval(ev, e->getE2()).get_int()); }    void visit(GreaterThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() > eval(ev, e->getE2()).get_int()); }
     void visit(LessEqThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() <= eval(ev, e->getE2()).get_int()); }
     void visit(GreaterEqThan_Expr* e) { r = Value(eval(ev, e->getE1()).get_int() >= eval(ev, e->getE2()).get_int()); }
     void visit(Negation_Expr *e) { r = Value(0 - eval(ev, e->getE()).get_int()); }

@@ -1,15 +1,20 @@
 //#include "eval.hpp"
+#include "weight.hpp"
+#include "height.hpp"
+#include "check.hpp"
+#include "print.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
-#include "generator.hpp"
-#include "genDecl.hpp"
-#include "genStmt.hpp"
-#include "genExpr.hpp"
+#include "evaluator.hpp"
+
+//void Evaluate_Int(Expr*, int, ASTcontext*);
+//void Evaluate_Bool(Expr*, ASTcontext*);
 
 int main(int argc, char *argv[])
 {
   std::string input, outputType;
   int outputTypeInt, exitValue;  
+  Value v;
 
   if (argv[1])
     outputType = argv[1];
@@ -37,8 +42,8 @@ int main(int argc, char *argv[])
 	std::string comment = input.substr(commentIndex + 1);
 	input = input.substr(0, commentIndex - 1);
 
-	//if (commentIndex != std::string::npos)
-	  //std::cout << "Comment: " << comment << '\n';
+	if (commentIndex != std::string::npos)
+	  std::cout << "Comment: " << comment << '\n';
 	file = file + input;
       }
     }
@@ -49,7 +54,7 @@ int main(int argc, char *argv[])
     
     std::vector<Token*> tokens;
     
-    //std::cout << "Lexing Tokens\n";
+    std::cout << "Lexing Tokens\n";
     Token *tok = lexe->next();
     
     while(tok) {
@@ -59,18 +64,45 @@ int main(int argc, char *argv[])
     }
     
     if (tokens.size() > 0) {
-       Parser *parse = new Parser(tokens, outputTypeInt, cxt);
+      /*for (std::vector<Token*>::iterator it = tokens.begin(); it != tokens.end(); ++it) {
+	(*it)->print();
+	
+	if (std::next(it) != tokens.end())
+	  std::cout << ", ";
+      }
+      std::cout << '\n';
+      */
+      Parser *parse = new Parser(tokens, outputTypeInt, cxt);
 
-       //std::cout << "Parsing Program\n";      
+      std::cout << "Parsing Program\n";      
       Decl* ast = parse->translate();
 
       Program_Decl* program = static_cast<Program_Decl*>(ast);
+      Fn_Decl* entry = nullptr;
 
-      Generator gen(cxt);
-      gen_decl(gen, program);
+      for (Decl* d : program->decls) {
+	if (Name_Decl* name = dynamic_cast<Name_Decl*>(d)) {
+	  if (name->getName() == *(cxt->insert("main"))) {
+	      entry = dynamic_cast<Fn_Decl*>(name);
+	      break;
+	  }
+	}
+      }
+	
+      if (entry) {
+	Expr* ref = parse->sema->id_expression(entry);
+	Expr* call = parse->sema->call_expression(ref, {});
+
+	v = eval(ev, call);
+	v.print_value(outputTypeInt);
+      }
+      else {
+	std::cout << "Y'all messed up\n";
+      }
 
       delete parse;
       delete program;
+      delete entry;
     }
     else
       std::cout << "There were no tokens to parse.\n";
@@ -95,7 +127,8 @@ int main(int argc, char *argv[])
   catch (Frame_Exception e) {
     std::cout << e.message() << '\n';
   }
-  catch (Generator_Exception e) {
+  catch (Interpretor_Exception e) {
     std::cout << e.message() << '\n';
   }
+  return v.get_int();
 }

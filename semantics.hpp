@@ -34,6 +34,7 @@ public:
   Stmt* break_statement();
   Stmt* continue_statement();
   Stmt* return_statement(Expr *);
+  Stmt* assert_statement(Expr *);
   Stmt* declaration_statement(Decl* d);
   Stmt* expression_statement(Expr* e);
 
@@ -115,9 +116,6 @@ void Semantic::leave_scope() {
 };
 
 Expr* Semantic::standard_conversion(Expr* e, Type* t) {
-  //if (dynamic_cast<Fn_Type*>(e->getType()))
-  //  return e;
-
   if (e->getType() == t)
     return e;
 
@@ -212,6 +210,11 @@ Stmt* Semantic::return_statement(Expr* e) {
   return new Return_Stmt(ret);
 }
 
+Stmt* Semantic::assert_statement(Expr* e) {
+  Type* t = cxt->Bool_;
+  return expression_statement(new Assert_Expr(e, t));
+}
+
 Stmt* Semantic::declaration_statement(Decl* d) {
  return new Decl_Stmt(d);
 }
@@ -257,18 +260,20 @@ Expr* Semantic::assign_expression(Expr* e1, Expr* e2) {
 }
 Expr* Semantic::condition_expression(Expr* e1, Expr* e2, Expr* e3) {
   Expr* condition = boolean_conversion(e1);
+  Expr* conv1 = arithmetic_conversion(e2);
+  Expr* conv2 = arithmetic_conversion(e3);
 
   if (condition->getType() == cxt->Bool_) {
-    check_common(e2, e3);
-    return new Cond_Expr(condition, e2, e3, cxt);
+    check_common(conv1, conv2);
+    return new Cond_Expr(condition, conv1, conv2, cxt);
   }
   else
     throw Type_Exception("Cond_Expr expects bool e1, and same type e2/e3");
 }
 
 Expr* Semantic::logical_and_expression(Expr* e1, Expr* e2) {
-  Expr* conv1 = boolean_conversion(e1);
-  Expr* conv2 = boolean_conversion(e2);
+  Expr* conv1 = arithmetic_conversion(e1);
+  Expr* conv2 = arithmetic_conversion(e2);
 
   if (conv1->getType() == cxt->Bool_ && conv2->getType() == cxt->Bool_)
     return new AndThen_Expr(conv1, conv2, cxt);
@@ -277,8 +282,8 @@ Expr* Semantic::logical_and_expression(Expr* e1, Expr* e2) {
 }
 
 Expr* Semantic::logical_or_expression(Expr* e1, Expr* e2) {
-  Expr* conv1 = boolean_conversion(e1);
-  Expr* conv2 = boolean_conversion(e2);
+  Expr* conv1 = arithmetic_conversion(e1);
+  Expr* conv2 = arithmetic_conversion(e2);
 
   if (conv1->getType() == cxt->Bool_ && conv2->getType() == cxt->Bool_)
     return new OrElse_Expr(conv1, conv2, cxt);
@@ -287,37 +292,43 @@ Expr* Semantic::logical_or_expression(Expr* e1, Expr* e2) {
 }
 
 Expr* Semantic::or_expression(Expr* e1, Expr* e2) {
-  Expr* conv1 = boolean_conversion(e1);
-  Expr* conv2 = boolean_conversion(e2);
+  Expr* conv1 = arithmetic_conversion(e1);
+  Expr* conv2 = arithmetic_conversion(e2);
 
   if (conv1->getType() == cxt->Bool_ && conv2->getType() == cxt->Bool_)
+    return new Or_Expr(conv1, conv2, cxt);
+  else if (conv1->getType() == cxt->Int_ && conv2->getType() == cxt->Int_)
     return new Or_Expr(conv1, conv2, cxt);
   else
     throw Type_Exception("Or_Expr expects both bool Expr");
 }
 
 Expr* Semantic::xor_expression(Expr* e1, Expr* e2) {
-  Expr* conv1 = boolean_conversion(e1);
-  Expr* conv2 = boolean_conversion(e2);
+  Expr* conv1 = arithmetic_conversion(e1);
+  Expr* conv2 = arithmetic_conversion(e2);
 
   if (conv1->getType() == cxt->Bool_ && conv2->getType() == cxt->Bool_)
+    return new Xor_Expr(conv1, conv2, cxt);
+  else if (conv1->getType() == cxt->Int_ && conv2->getType() == cxt->Int_)
     return new Xor_Expr(conv1, conv2, cxt);
   else
     throw Type_Exception("Xor_Expr expects both bool Expr");
 }
 
 Expr* Semantic::and_expression(Expr* e1, Expr* e2) {
-  Expr* conv1 = boolean_conversion(e1);
-  Expr* conv2 = boolean_conversion(e2);
+  Expr* conv1 = arithmetic_conversion(e1);
+  Expr* conv2 = arithmetic_conversion(e2);
 
   if (conv1->getType() == cxt->Bool_ && conv2->getType() == cxt->Bool_)
+    return new And_Expr(conv1, conv2, cxt);
+  else if (conv1->getType() == cxt->Int_ && conv2->getType() == cxt->Int_)
     return new And_Expr(conv1, conv2, cxt);
   else
     throw Type_Exception("And_Expr expects both bool Expr");
 }
 
 Expr* Semantic::one_complement_expression(Expr* e) {
-  Expr* conv = boolean_conversion(e);
+  Expr* conv = arithmetic_conversion(e);
 
   if (conv->getType() == cxt->Bool_ || conv->getType() == cxt->Int_)
     return new OneComplement_Expr(conv, cxt);
